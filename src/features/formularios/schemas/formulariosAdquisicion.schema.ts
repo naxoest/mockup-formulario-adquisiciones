@@ -254,5 +254,5 @@ export const tratoDirectoFormSchema = cabeceraComunFormSchema
     }
   })
 
-export type LicitacionPublicaFormValues = z.infer<typeof licitacionPublicaFormSchema>
-export type TratoDirectoFormValues = z.infer<typeof tratoDirectoFormSchema>
+export type LicitacionPublicaFormValues = z.input<typeof licitacionPublicaFormSchema>
+export type TratoDirectoFormValues = z.input<typeof tratoDirectoFormSchema>
