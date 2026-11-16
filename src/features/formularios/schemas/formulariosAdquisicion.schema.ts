@@ -6,8 +6,10 @@ import {
 } from '@/features/formularios/schemas/disposicionesComunes.schema'
 import {
   GARANTIA_MINIMA_LICITACION_MESES,
+  TOPE_CAUSAL_7B_UTM,
   calcularMaximoGarantiaSeriedadClp,
   calcularMontoUtm,
+  calcularTotalesCotizacionTratoDirecto,
   contarCriteriosTecnicosActivos,
   obtenerFormalizacionForzada,
   obtenerMinimoComisionEvaluadora,
@@ -411,66 +413,223 @@ export const licitacionPublicaFormSchema = cabeceraComunFormSchema
     }
   })
 
+export const itemRequeridoTratoDirectoFormSchema = z.object({
+  cantidad: z
+    .number({ error: 'Ingrese la cantidad requerida' })
+    .int('Debe ser entero')
+    .positive('Mínimo 1')
+    .nullable()
+    .refine((valor): valor is number => valor !== null, { error: 'Ingrese la cantidad' }),
+  descripcionDetallada: z
+    .string()
+    .trim()
+    .min(
+      5,
+      'Detalle las características del bien y/o servicio requerido (materialidad, medidas, condiciones, hitos, etc.)',
+    ),
+})
+
+export const lineaCotizacionTratoDirectoFormSchema = z.object({
+  cantidad: z
+    .number({ error: 'Ingrese la cantidad' })
+    .int('Debe ser entero')
+    .positive('Mínimo 1')
+    .nullable()
+    .refine((valor): valor is number => valor !== null, { error: 'Ingrese la cantidad' }),
+  detalle: z.string().trim().min(3, 'Indique el nombre o detalle de lo requerido'),
+  precioUnitarioNeto: z
+    .number({ error: 'Ingrese el precio unitario neto' })
+    .int('Sin decimales')
+    .positive('Mayor a cero')
+    .nullable()
+    .refine((valor): valor is number => valor !== null, {
+      error: 'Ingrese el precio unitario neto',
+    }),
+})
+
+export const condicionesCompraTratoDirectoFormSchema = z.object({
+  plazoEntregaDiasHabiles: z
+    .number({ error: 'Indique el plazo de entrega en días hábiles' })
+    .int('Días enteros')
+    .positive('Mínimo 1 día hábil')
+    .nullable()
+    .refine((valor): valor is number => valor !== null, {
+      error: 'Indique el plazo de entrega en días hábiles',
+    }),
+  esServicio: z.boolean(),
+  fechaInicioServicio: z.string().trim(),
+  fechaTerminoServicio: z.string().trim(),
+  requiereGarantia: z.boolean(),
+  mesesGarantia: z
+    .number({ error: 'Indique los meses de garantía' })
+    .int('Meses enteros')
+    .min(1, 'Mínimo 1 mes')
+    .nullable(),
+  aplicaDireccionDespacho: z.boolean(),
+  direccionDespachoCodigo: z.enum([
+    'osorno_fuchslocher',
+    'puerto_montt_chinquihue',
+    'santiago_republica',
+    'ancud_ramirez',
+    'castro_mansilla',
+    'otra',
+  ]),
+  direccionDespachoOtra: z.string().trim(),
+})
+
 export const tratoDirectoFormSchema = cabeceraComunFormSchema
   .extend({
-    proveedorNombre: z
-      .string()
-      .trim()
-      .min(3, 'Ingrese la razón social o nombre del proveedor')
-      .max(160, 'Máximo 160 caracteres'),
-    proveedorRut: runChilenoSchema,
+    campusSede: z.enum(['osorno', 'puerto_montt', 'santiago', 'ancud', 'castro'], {
+      error: 'Seleccione el Campus o Sede',
+    }),
+    fechaFormulario: z
+      .date({ error: 'Seleccione la fecha del formulario' })
+      .nullable()
+      .refine((valor): valor is Date => valor !== null, {
+        error: 'Seleccione la fecha del formulario',
+      }),
+    itemsRequeridos: z
+      .array(itemRequeridoTratoDirectoFormSchema)
+      .min(1, 'Agregue al menos un ítem en la tabla del punto 1'),
+    situacionConvenioMarco: z.enum(
+      ['no_disponible', 'condiciones_regionales_o_monto_minimo', 'compra_agil_sin_resultados'],
+      { error: 'Seleccione la situación respecto al Catálogo de Convenio Marco' },
+    ),
     causal: z.enum(
       [
+        'costo_desproporcionado_7b',
         'proveedor_unico',
         'emergencia_urgencia',
-        'costo_desproporcionado_7b',
         'servicios_confianza',
-        'convenio_marco_no_disponible',
+        'seguridad_o_equipamiento_critico',
       ],
-      { error: 'Seleccione la causal legal del Art. 71' },
+      { error: 'Seleccione la causal del Artículo 71' },
     ),
     objetivoImportancia: z
       .string()
       .trim()
-      .min(
-        20,
-        'Describa con detalle el objetivo e importancia institucional (mínimo 20 caracteres)',
-      )
-      .max(1500, 'Máximo 1500 caracteres'),
-    justificacionProveedorUnico: z
+      .min(20, '4.a) Señale el objeto, motivo e importancia de la compra (mínimo 20 caracteres)'),
+    motivosEleccionProveedor: z
+      .string()
+      .trim()
+      .min(20, '4.b) Indique los motivos que argumentan la elección del proveedor'),
+    justificacionCausalEscogida: z
       .string()
       .trim()
       .min(
         20,
-        'Justifique técnica o comercialmente por qué este proveedor es la única opción viable',
-      )
-      .max(1500, 'Máximo 1500 caracteres'),
-    informeCostos7b: z.string().trim().max(1500, 'Máximo 1500 caracteres'),
-    certificaNoConvenioMarco: z.boolean().refine((valor) => valor === true, {
+        '4.c) Indique la fundamentación documentada de la causal escogida y por qué no es posible licitar',
+      ),
+    proveedorNombre: z
+      .string()
+      .trim()
+      .min(3, 'Ingrese la razón social del proveedor')
+      .max(160, 'Máximo 160 caracteres'),
+    proveedorRut: runChilenoSchema,
+    lineasCotizacion: z
+      .array(lineaCotizacionTratoDirectoFormSchema)
+      .min(1, 'Agregue al menos una línea en el cuadro de cotización del proveedor'),
+    afectoIva: z.boolean(),
+    condicionesCompra: condicionesCompraTratoDirectoFormSchema,
+    otrosIncumplimientos: z.array(otroIncumplimientoFormSchema),
+    compromisoEstandarSimpleOc: z.boolean().refine((valor) => valor === true, {
       error:
-        'Debe certificar que el bien o servicio no está disponible en Convenio Marco o condiciones regionales',
+        '9.a) Debe declarar que el bien/servicio es de estándar simple y objetiva especificación formalizable con OC',
     }),
     compromisoNoFragmentacion: z.boolean().refine((valor) => valor === true, {
-      error: 'Debe asumir el compromiso de no fragmentar compras para eludir licitación',
+      error:
+        '9.b) Debe declarar no estar fragmentando la compra para variar el procedimiento de contratación',
     }),
+    jefeCrNombre: z.string().trim().min(3, '10) Ingrese el nombre del Jefe de CR'),
+    jefeCrCargo: z.string().trim().min(2, 'Ingrese el cargo del Jefe de CR'),
+    coordinadorEsMismoJefeCr: z.boolean(),
     archivoCotizacion: z
       .array(fileUploadItemSchema)
-      .min(1, 'Debe adjuntar la cotización del proveedor'),
+      .min(1, '11) Debe adjuntar la Cotización del proveedor (Obligatorio)'),
     archivoDeclaracionJurada: z
       .array(fileUploadItemSchema)
-      .min(1, 'Debe adjuntar la declaración jurada del proveedor'),
+      .min(1, '11) Debe adjuntar la Declaración jurada del proveedor (Obligatorio)'),
+    documentosAdicionales: z.array(
+      z.enum([
+        'certificado_proveedor_unico',
+        'certificado_servicio_tecnico',
+        'convenio_cooperacion',
+        'informe_tecnico',
+        'otro',
+      ]),
+    ),
+    otroDocumentoAdicionalDetalle: z.string().trim(),
   })
   .superRefine((valores, ctx) => {
+    const totales = calcularTotalesCotizacionTratoDirecto(
+      valores.lineasCotizacion,
+      valores.afectoIva,
+    )
+    const montoUtm = calcularMontoUtm(totales.total)
+
+    if (valores.causal === 'costo_desproporcionado_7b' && montoUtm > TOPE_CAUSAL_7B_UTM) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['causal'],
+        message: `La causal 7b permite un máximo de ${TOPE_CAUSAL_7B_UTM} UTM (la cotización actual equivale a ${montoUtm} UTM)`,
+        input: valores.causal,
+      })
+    }
+
+    if (valores.condicionesCompra.esServicio) {
+      if (valores.condicionesCompra.fechaInicioServicio.trim().length < 3) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['condicionesCompra', 'fechaInicioServicio'],
+          message: 'Indique la fecha o mes de inicio del servicio (ej. Agosto 2025)',
+          input: valores.condicionesCompra.fechaInicioServicio,
+        })
+      }
+      if (valores.condicionesCompra.fechaTerminoServicio.trim().length < 3) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['condicionesCompra', 'fechaTerminoServicio'],
+          message: 'Indique la fecha o mes de término del servicio (ej. Agosto 2026)',
+          input: valores.condicionesCompra.fechaTerminoServicio,
+        })
+      }
+    }
+
     if (
-      valores.causal === 'costo_desproporcionado_7b' &&
-      valores.informeCostos7b.trim().length < 20
+      valores.condicionesCompra.requiereGarantia &&
+      (valores.condicionesCompra.mesesGarantia === null ||
+        valores.condicionesCompra.mesesGarantia < 1)
     ) {
       ctx.addIssue({
         code: 'custom',
-        path: ['informeCostos7b'],
-        message:
-          'La causal 7b exige incluir un informe de costos que demuestre la desproporción de licitar (mínimo 20 caracteres)',
-        input: valores.informeCostos7b,
+        path: ['condicionesCompra', 'mesesGarantia'],
+        message: 'Indique los meses de garantía del bien o servicio',
+        input: valores.condicionesCompra.mesesGarantia,
+      })
+    }
+
+    if (
+      valores.condicionesCompra.aplicaDireccionDespacho &&
+      valores.condicionesCompra.direccionDespachoCodigo === 'otra' &&
+      valores.condicionesCompra.direccionDespachoOtra.trim().length < 5
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['condicionesCompra', 'direccionDespachoOtra'],
+        message: 'Indique la dirección de despacho o servicio',
+        input: valores.condicionesCompra.direccionDespachoOtra,
+      })
+    }
+
+    if (
+      valores.documentosAdicionales.includes('otro') &&
+      valores.otroDocumentoAdicionalDetalle.trim().length < 3
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['otroDocumentoAdicionalDetalle'],
+        message: 'Indique cuál es el otro documento adjuntado',
+        input: valores.otroDocumentoAdicionalDetalle,
       })
     }
   })

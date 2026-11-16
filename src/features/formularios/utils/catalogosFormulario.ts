@@ -7,16 +7,21 @@ import type {
   CategoriaRequerimientoLicitacion,
   CausalTratoDirecto,
   DireccionDespachoCodigo,
+  DocumentoAcreditacionAdicional,
   EstadoFormularioAdquisicion,
   FormularioAdquisicion,
   ModalidadFormaPagoLicitacion,
   ModalidadFormulario,
+  SituacionConvenioMarco,
   TipoEvaluacionOfertas,
   TipoFormalizacionLicitacion,
   TipoPresupuestoLicitacion,
   TipoSolicitudEdelfos,
 } from '@/features/formularios/types/formularioAdquisicion.types'
-import { calcularMontoUtm } from '@/features/formularios/utils/reglasLicitacion'
+import {
+  calcularMontoUtm,
+  calcularTotalesCotizacionTratoDirecto,
+} from '@/features/formularios/utils/reglasLicitacion'
 import type { SelectOption } from '@/types/select'
 
 export interface OpcionRadioConDescripcion {
@@ -36,11 +41,11 @@ export type NuevoFormularioPayload =
     >
 
 export const OPCIONES_CAMPUS_SEDE: SelectOption[] = [
-  { value: 'osorno', label: 'Campus Osorno' },
-  { value: 'puerto_montt', label: 'Campus Puerto Montt' },
-  { value: 'santiago', label: 'Sede Santiago' },
-  { value: 'ancud', label: 'Sede Chiloé — Ancud' },
-  { value: 'castro', label: 'Sede Chiloé — Castro' },
+  { value: 'osorno', label: 'Osorno' },
+  { value: 'puerto_montt', label: 'Puerto Montt' },
+  { value: 'santiago', label: 'Santiago' },
+  { value: 'ancud', label: 'Ancud' },
+  { value: 'castro', label: 'Castro' },
 ]
 
 export const OPCIONES_TIPO_SOLICITUD_EDELFOS: SelectOption[] = [
@@ -251,39 +256,88 @@ export const OPCIONES_MECANISMO_GARANTIA: OpcionRadioConDescripcion[] = [
   },
 ]
 
-export const OPCIONES_CAUSAL_TRATO_DIRECTO: SelectOption[] = [
+export const OPCIONES_CONVENIO_MARCO_TRATO_DIRECTO: OpcionRadioConDescripcion[] = [
   {
-    value: 'proveedor_unico',
-    label: 'Art. 71 letra d) — Proveedor único o titular exclusivo de derechos',
+    value: 'no_disponible',
+    label: 'a) No se encuentra disponible el servicio y/o producto descrito en el número anterior',
+    description: 'El bien o servicio requerido no figura en el Catálogo de Convenio Marco vigente.',
   },
   {
+    value: 'condiciones_regionales_o_monto_minimo',
+    label:
+      'b) Se encuentra disponible, pero las condiciones regionales del proveedor o el monto mínimo no permiten su adquisición',
+    description: 'Sin despacho o cobertura en la región o bajo el monto mínimo de orden de compra.',
+  },
+  {
+    value: 'compra_agil_sin_resultados',
+    label:
+      'c) Se realizó previamente cotización para una Compra Ágil sin resultados o las cotizaciones recibidas no corresponden',
+    description: 'Las ofertas recibidas en Compra Ágil no cumplen los requerimientos técnicos.',
+  },
+]
+
+export const OPCIONES_CAUSAL_TRATO_DIRECTO: SelectOption[] = [
+  {
     value: 'costo_desproporcionado_7b',
-    label: 'Art. 71 N° 7 letra b) — Costo de licitación desproporcionado (exige informe de costos)',
+    label:
+      '7b) Cuando el costo de recurrir a un procedimiento competitivo resulte desproporcionado financiera o humanamente (máx 100 UTM)',
+  },
+  {
+    value: 'proveedor_unico',
+    label: 'Letra d) Si sólo existe un proveedor del bien o servicio (titular exclusivo)',
   },
   {
     value: 'emergencia_urgencia',
-    label: 'Art. 71 letra c) — Emergencia, urgencia o imprevisto calificado',
+    label: 'Letra c) En casos de emergencia, urgencia o imprevisto calificado',
   },
   {
     value: 'servicios_confianza',
-    label: 'Art. 71 letra f) — Servicios de naturaleza confidencial o facultades especiales',
+    label: 'Letra f) Servicios de naturaleza confidencial o facultades especiales',
   },
   {
-    value: 'convenio_marco_no_disponible',
-    label: 'Condiciones regionales o ausencia en Catálogo de Convenio Marco',
+    value: 'seguridad_o_equipamiento_critico',
+    label: 'Reposición o complementación de equipamiento o servicios críticos compatibles',
+  },
+]
+
+export const OPCIONES_DOCUMENTOS_ADICIONALES_TD: OpcionRadioConDescripcion[] = [
+  {
+    value: 'certificado_proveedor_unico',
+    label: 'Certificado de proveedor único',
+    description: 'Acredita exclusividad comercial o propiedad intelectual.',
+  },
+  {
+    value: 'certificado_servicio_tecnico',
+    label: 'Certificado de servicio técnico autorizado',
+    description: 'Respaldo oficial del fabricante o representante exclusivo.',
+  },
+  {
+    value: 'convenio_cooperacion',
+    label: 'Convenio de cooperación',
+    description: 'Acuerdo institucional vigente.',
+  },
+  {
+    value: 'informe_tecnico',
+    label: 'Informe técnico / Informe de costos',
+    description: 'Informe detallado de costos (ej. 81,66 UTM en causal 7b) o evaluación técnica.',
+  },
+  {
+    value: 'otro',
+    label: 'Otro documento adjuntado',
+    description: 'Permite especificar otro antecedente de respaldo.',
   },
 ]
 
 export const OPCIONES_TOPE_CONTRATO: OpcionRadioConDescripcion[] = [
   {
     value: '10',
-    label: 'Tope 10% del valor total del contrato',
-    description: 'Límite máximo acumulado de multas para contratos de menor riesgo.',
+    label: 'Tope 10% del valor total del contrato (Estándar Trato Directo)',
+    description: '20 días corridos o hábiles al 0,5% diario = hasta 10% del valor del contrato.',
   },
   {
     value: '20',
-    label: 'Tope 20% del valor total del contrato',
-    description: 'Límite máximo estándar institucional establecido en el formulario oficial.',
+    label: 'Tope 20% del valor total del contrato (Estándar Licitación Pública)',
+    description: 'Límite máximo acumulado en bases de licitación pública.',
   },
 ]
 
@@ -300,11 +354,11 @@ export const ETIQUETAS_MODALIDAD_FORMULARIO: Record<ModalidadFormulario, string>
 }
 
 export const ETIQUETAS_CAMPUS_SEDE: Record<CampusSedeUlagos, string> = {
-  osorno: 'Campus Osorno',
-  puerto_montt: 'Campus Puerto Montt',
-  santiago: 'Sede Santiago',
-  ancud: 'Sede Ancud',
-  castro: 'Sede Castro',
+  osorno: 'Osorno',
+  puerto_montt: 'Puerto Montt',
+  santiago: 'Santiago',
+  ancud: 'Ancud',
+  castro: 'Castro',
 }
 
 export const ETIQUETAS_CATEGORIA_LICITACION: Record<CategoriaRequerimientoLicitacion, string> = {
@@ -343,19 +397,36 @@ export const ETIQUETAS_TIPO_EVALUACION: Record<TipoEvaluacionOfertas, string> = 
   por_linea: 'Por línea (adjudicación por ítem)',
 }
 
+export const ETIQUETAS_CONVENIO_MARCO_TD: Record<SituacionConvenioMarco, string> = {
+  no_disponible: 'a) No se encuentra disponible en el Catálogo de Convenio Marco',
+  condiciones_regionales_o_monto_minimo:
+    'b) Disponible en Convenio Marco, pero condiciones regionales o monto mínimo no lo permiten',
+  compra_agil_sin_resultados:
+    'c) Se realizó cotización en Compra Ágil sin resultados o sin ajustarse a lo requerido',
+}
+
 export const ETIQUETAS_CAUSAL_TRATO_DIRECTO: Record<CausalTratoDirecto, string> = {
-  proveedor_unico: 'Art. 71 d) Proveedor único',
-  costo_desproporcionado_7b: 'Art. 71 7b) Costo desproporcionado',
-  emergencia_urgencia: 'Art. 71 c) Emergencia o urgencia',
-  servicios_confianza: 'Art. 71 f) Servicios especializados',
-  convenio_marco_no_disponible: 'Sin cobertura en Convenio Marco regional',
+  costo_desproporcionado_7b:
+    '7b) Costo desproporcionado de realizar licitación competitiva (máx 100 UTM)',
+  proveedor_unico: 'Letra d) Proveedor único del bien o servicio',
+  emergencia_urgencia: 'Letra c) Emergencia, urgencia o imprevisto calificado',
+  servicios_confianza: 'Letra f) Servicios especializados o confidenciales',
+  seguridad_o_equipamiento_critico: 'Reposición o compatibilidad de equipamiento crítico',
+}
+
+export const ETIQUETAS_DOCUMENTOS_ADICIONALES_TD: Record<DocumentoAcreditacionAdicional, string> = {
+  certificado_proveedor_unico: 'Certificado de proveedor único',
+  certificado_servicio_tecnico: 'Certificado de servicio técnico autorizado',
+  convenio_cooperacion: 'Convenio de cooperación',
+  informe_tecnico: 'Informe técnico',
+  otro: 'Otro documento',
 }
 
 export const ETIQUETAS_TIPO_SOLICITUD: Record<TipoSolicitudEdelfos, string> = {
-  SASERVI: 'SASERVI (Servicios)',
-  SASERDIR: 'SASERDIR (Material de enseñanza)',
-  SAEXIST: 'SAEXIST (Existencias)',
-  SABIENES: 'SABIENES (Bienes)',
+  SASERVI: 'SASERVI',
+  SASERDIR: 'SASERDIR',
+  SAEXIST: 'SAEXIST',
+  SABIENES: 'SABIENES',
 }
 
 function extraerNombreArchivo(
@@ -514,33 +585,22 @@ export function transformarLicitacionAPayload(
 export function transformarTratoDirectoAPayload(
   valores: TratoDirectoFormValues,
 ): NuevoFormularioPayload {
-  const montoClp = valores.montoEstimadoClp ?? 0
-  const primerCotizacion = valores.archivoCotizacion[0]
-  const primerDeclaracion = valores.archivoDeclaracionJurada[0]
-
-  const nombreCotizacion =
-    primerCotizacion?.kind === 'pending'
-      ? primerCotizacion.file.name
-      : (primerCotizacion?.name ?? 'cotizacion.pdf')
-
-  const nombreDeclaracion =
-    primerDeclaracion?.kind === 'pending'
-      ? primerDeclaracion.file.name
-      : (primerDeclaracion?.name ?? 'declaracion_jurada.pdf')
+  const totales = calcularTotalesCotizacionTratoDirecto(valores.lineasCotizacion, valores.afectoIva)
+  const montoFinalClp = totales.total > 0 ? totales.total : (valores.montoEstimadoClp ?? 0)
 
   return {
     modalidad: 'trato_directo',
     titulo: valores.titulo.trim(),
     codigoEdelfos: valores.codigoEdelfos.trim().toUpperCase(),
     tipoSolicitud: valores.tipoSolicitud,
-    montoEstimadoClp: montoClp,
-    montoEstimadoUtm: calcularMontoUtm(montoClp),
+    montoEstimadoClp: montoFinalClp,
+    montoEstimadoUtm: calcularMontoUtm(montoFinalClp),
     coordinador: {
       nombreCompleto: valores.coordinador.nombreCompleto.trim(),
       run: valores.coordinador.run.trim(),
       correo: valores.coordinador.correo.trim(),
       cargo: valores.coordinador.cargo.trim(),
-      crCodigo: valores.coordinador.crCodigo ?? 1,
+      crCodigo: valores.coordinador.crCodigo ?? 60,
       crNombre: valores.coordinador.crNombre.trim(),
     },
     disposiciones: {
@@ -551,16 +611,67 @@ export function transformarTratoDirectoAPayload(
       aceptaTerminoAnticipadoArt130: valores.disposiciones.aceptaTerminoAnticipadoArt130,
     },
     tratoDirecto: {
-      proveedorNombre: valores.proveedorNombre.trim(),
-      proveedorRut: valores.proveedorRut.trim(),
+      campusSede: valores.campusSede,
+      fechaFormulario: valores.fechaFormulario
+        ? valores.fechaFormulario.toISOString().slice(0, 10)
+        : '',
+      itemsRequeridos: valores.itemsRequeridos.map((item) => ({
+        cantidad: item.cantidad ?? 1,
+        descripcionDetallada: item.descripcionDetallada.trim(),
+      })),
+      situacionConvenioMarco: valores.situacionConvenioMarco,
       causal: valores.causal,
       objetivoImportancia: valores.objetivoImportancia.trim(),
-      justificacionProveedorUnico: valores.justificacionProveedorUnico.trim(),
-      informeCostos7b: valores.informeCostos7b.trim(),
-      certificaNoConvenioMarco: valores.certificaNoConvenioMarco,
+      motivosEleccionProveedor: valores.motivosEleccionProveedor.trim(),
+      justificacionCausalEscogida: valores.justificacionCausalEscogida.trim(),
+      proveedorNombre: valores.proveedorNombre.trim(),
+      proveedorRut: valores.proveedorRut.trim(),
+      lineasCotizacion: valores.lineasCotizacion.map((linea) => {
+        const cant = linea.cantidad ?? 1
+        const unitario = linea.precioUnitarioNeto ?? 0
+        return {
+          cantidad: cant,
+          detalle: linea.detalle.trim(),
+          precioUnitarioNeto: unitario,
+          precioTotalNeto: Math.round(cant * unitario),
+        }
+      }),
+      afectoIva: valores.afectoIva,
+      montoNetoClp: totales.neto,
+      montoIvaClp: totales.iva,
+      montoTotalClp: totales.total,
+      condicionesCompra: {
+        plazoEntregaDiasHabiles: valores.condicionesCompra.plazoEntregaDiasHabiles ?? 5,
+        esServicio: valores.condicionesCompra.esServicio,
+        fechaInicioServicio: valores.condicionesCompra.fechaInicioServicio.trim(),
+        fechaTerminoServicio: valores.condicionesCompra.fechaTerminoServicio.trim(),
+        requiereGarantia: valores.condicionesCompra.requiereGarantia,
+        mesesGarantia: valores.condicionesCompra.requiereGarantia
+          ? (valores.condicionesCompra.mesesGarantia ?? 6)
+          : null,
+        aplicaDireccionDespacho: valores.condicionesCompra.aplicaDireccionDespacho,
+        direccionDespachoCodigo: valores.condicionesCompra.direccionDespachoCodigo,
+        direccionDespachoOtra: valores.condicionesCompra.direccionDespachoOtra.trim(),
+      },
+      otrosIncumplimientos: valores.otrosIncumplimientos.map((inc) => ({
+        tipoIncumplimiento: inc.tipoIncumplimiento.trim(),
+        sancionAplicar: inc.sancionAplicar.trim(),
+      })),
+      compromisoEstandarSimpleOc: valores.compromisoEstandarSimpleOc,
       compromisoNoFragmentacion: valores.compromisoNoFragmentacion,
-      nombreArchivoCotizacion: nombreCotizacion,
-      nombreArchivoDeclaracionJurada: nombreDeclaracion,
+      jefeCrNombre: valores.jefeCrNombre.trim(),
+      jefeCrCargo: valores.jefeCrCargo.trim(),
+      coordinadorEsMismoJefeCr: valores.coordinadorEsMismoJefeCr,
+      nombreArchivoCotizacion: extraerNombreArchivo(
+        valores.archivoCotizacion,
+        'cotizacion_proveedor.pdf',
+      ),
+      nombreArchivoDeclaracionJurada: extraerNombreArchivo(
+        valores.archivoDeclaracionJurada,
+        'declaracion_jurada.pdf',
+      ),
+      documentosAdicionales: valores.documentosAdicionales,
+      otroDocumentoAdicionalDetalle: valores.otroDocumentoAdicionalDetalle.trim(),
     },
   }
 }
