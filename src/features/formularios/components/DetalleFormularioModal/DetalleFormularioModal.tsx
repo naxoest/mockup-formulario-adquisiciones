@@ -8,11 +8,16 @@ import type {
   FormularioAdquisicion,
 } from '@/features/formularios/types/formularioAdquisicion.types'
 import {
+  ETIQUETAS_CAMPUS_SEDE,
   ETIQUETAS_CATEGORIA_LICITACION,
   ETIQUETAS_CAUSAL_TRATO_DIRECTO,
+  ETIQUETAS_DIRECCION_DESPACHO,
   ETIQUETAS_ESTADO_FORMULARIO,
   ETIQUETAS_FORMALIZACION,
+  ETIQUETAS_FORMA_PAGO,
   ETIQUETAS_MODALIDAD_FORMULARIO,
+  ETIQUETAS_TIPO_EVALUACION,
+  ETIQUETAS_TIPO_PRESUPUESTO,
   ETIQUETAS_TIPO_SOLICITUD,
 } from '@/features/formularios/utils/catalogosFormulario'
 import { formatCLP } from '@/utils/currency'
@@ -56,8 +61,7 @@ export function DetalleFormularioModal({
   return (
     <Modal open={open} onClose={() => resolve()} onExited={onExited} size="xl">
       <Modal.Header>
-        Ficha de Adquisición {formulario.folio} —{' '}
-        {ETIQUETAS_MODALIDAD_FORMULARIO[formulario.modalidad]}
+        Ficha Oficial {formulario.folio} — {ETIQUETAS_MODALIDAD_FORMULARIO[formulario.modalidad]}
       </Modal.Header>
 
       <Modal.Body className="space-y-6">
@@ -71,6 +75,12 @@ export function DetalleFormularioModal({
                 {ETIQUETAS_ESTADO_FORMULARIO[formulario.estado]}
               </Badge>
               <Badge variant="neutral">{ETIQUETAS_TIPO_SOLICITUD[formulario.tipoSolicitud]}</Badge>
+              {formulario.modalidad === 'licitacion_publica' && (
+                <Badge variant="info">
+                  {ETIQUETAS_CAMPUS_SEDE[formulario.licitacion.antecedentes.campusSede]} ·{' '}
+                  {formulario.licitacion.antecedentes.fechaFormulario}
+                </Badge>
+              )}
             </div>
             <h3 className="text-base font-semibold text-mercury-900">{formulario.titulo}</h3>
             <p className="text-xs text-mercury-600">
@@ -79,7 +89,7 @@ export function DetalleFormularioModal({
           </div>
 
           <div className="text-right">
-            <p className="text-xs text-mercury-500">Monto estimado</p>
+            <p className="text-xs text-mercury-500">Presupuesto</p>
             <p className="text-lg font-bold tabular-nums text-mercury-900">
               {formatCLP(formulario.montoEstimadoClp)}
             </p>
@@ -89,151 +99,218 @@ export function DetalleFormularioModal({
           </div>
         </div>
 
-        <div className="grid gap-4 rounded-xl border border-mercury-200 p-4 sm:grid-cols-2">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-mercury-500">
-              Coordinador / Supervisor del Contrato
-            </p>
-            <p className="mt-1 text-sm font-semibold text-mercury-900">
-              {formulario.coordinador.nombreCompleto}
-            </p>
-            <p className="text-xs text-mercury-600">
-              RUN: {formulario.coordinador.run} · {formulario.coordinador.cargo}
-            </p>
-            <p className="text-xs text-mercury-600">{formulario.coordinador.correo}</p>
-          </div>
-
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-mercury-500">
-              Centro de Responsabilidad (CR)
-            </p>
-            <p className="mt-1 text-sm font-semibold text-mercury-900">
-              CR #{formulario.coordinador.crCodigo}
-            </p>
-            <p className="text-xs text-mercury-600">{formulario.coordinador.crNombre}</p>
-          </div>
-        </div>
-
         {formulario.modalidad === 'licitacion_publica' ? (
-          <div className="space-y-4">
-            <div className="grid gap-4 rounded-xl border border-mercury-200 p-4 sm:grid-cols-2">
-              <div>
-                <p className="text-xs text-mercury-500">Categoría del requerimiento</p>
-                <p className="text-sm font-semibold text-mercury-900">
-                  {ETIQUETAS_CATEGORIA_LICITACION[formulario.licitacion.categoriaRequerimiento]}
-                </p>
+          <div className="space-y-5">
+            <div className="space-y-3 rounded-xl border border-mercury-200 p-4">
+              <h4 className="text-sm font-bold uppercase tracking-wide text-primary-800">
+                I. Descripción del Producto o Servicio Requerido
+              </h4>
+
+              <div className="grid gap-3 text-xs text-mercury-700 sm:grid-cols-2">
+                <div>
+                  <span className="text-mercury-500">Opción seleccionada:</span>{' '}
+                  <strong>
+                    {ETIQUETAS_CATEGORIA_LICITACION[formulario.licitacion.categoriaRequerimiento]}
+                  </strong>
+                </div>
+                <div>
+                  <span className="text-mercury-500">Formalización:</span>{' '}
+                  <strong>{ETIQUETAS_FORMALIZACION[formulario.licitacion.formalizacion]}</strong>
+                </div>
+                <div>
+                  <span className="text-mercury-500">Dirección de despacho:</span>{' '}
+                  <strong>
+                    {formulario.licitacion.direccionDespachoCodigo === 'otra'
+                      ? formulario.licitacion.direccionDespachoOtra
+                      : ETIQUETAS_DIRECCION_DESPACHO[formulario.licitacion.direccionDespachoCodigo]}
+                  </strong>
+                </div>
+                <div>
+                  <span className="text-mercury-500">Forma de pago:</span>{' '}
+                  <strong>{ETIQUETAS_FORMA_PAGO[formulario.licitacion.modalidadFormaPago]}</strong>
+                </div>
               </div>
-              <div>
-                <p className="text-xs text-mercury-500">Formalización exigida</p>
-                <p className="text-sm font-semibold text-mercury-900">
-                  {ETIQUETAS_FORMALIZACION[formulario.licitacion.formalizacion]}
-                </p>
+
+              {formulario.licitacion.productos.length > 0 && (
+                <ul className="space-y-2 pt-2 text-xs text-mercury-700">
+                  {formulario.licitacion.productos.map((prod, idx) => (
+                    <li key={idx} className="rounded-lg bg-mercury-50 p-3">
+                      <strong>
+                        Ítem #{idx + 1} (Cantidad: {prod.cantidad}):
+                      </strong>{' '}
+                      {prod.especificacionesTecnicas} ·{' '}
+                      {prod.requiereGarantia
+                        ? `Garantía: ${prod.mesesGarantia} meses`
+                        : 'No requiere garantía'}
+                      {prod.nombreImagenReferencia
+                        ? ` · Imagen ref.: ${prod.nombreImagenReferencia}`
+                        : ''}
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              {formulario.licitacion.especificacionesTecnicasServicio && (
+                <div className="rounded-lg bg-mercury-50 p-3 text-xs text-mercury-700">
+                  <strong>Especificaciones del servicio:</strong>{' '}
+                  {formulario.licitacion.especificacionesTecnicasServicio}
+                </div>
+              )}
+
+              {formulario.licitacion.bibliografia.length > 0 && (
+                <div className="space-y-2 pt-2 text-xs text-mercury-700">
+                  {formulario.licitacion.nombrePlanillaValidacionBiblioteca && (
+                    <p>
+                      Planilla validación Biblioteca:{' '}
+                      <strong>{formulario.licitacion.nombrePlanillaValidacionBiblioteca}</strong>
+                    </p>
+                  )}
+                  <ul className="space-y-2">
+                    {formulario.licitacion.bibliografia.map((libro, idx) => (
+                      <li key={idx} className="rounded-lg bg-mercury-50 p-2.5">
+                        <strong>{libro.titulo}</strong> — {libro.autor} ({libro.editorial},{' '}
+                        {libro.numeroEdicion}, Idioma: {libro.idioma}) · ISBN/ISSN: {libro.isbnIssn}{' '}
+                        · Cantidad: {libro.cantidad}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-3 rounded-xl border border-mercury-200 p-4">
+              <h4 className="text-sm font-bold uppercase tracking-wide text-primary-800">
+                II. Antecedentes Generales
+              </h4>
+              <div className="grid gap-3 text-xs text-mercury-700 sm:grid-cols-2">
+                <div>
+                  <span className="text-mercury-500">CR de Financiamiento:</span>{' '}
+                  <strong>
+                    #{formulario.coordinador.crCodigo} — {formulario.coordinador.crNombre}
+                  </strong>
+                </div>
+                <div>
+                  <span className="text-mercury-500">Jefe de CR:</span>{' '}
+                  <strong>
+                    {formulario.licitacion.antecedentes.jefeCrNombre} (
+                    {formulario.licitacion.antecedentes.jefeCrCargo})
+                  </strong>
+                </div>
+                <div>
+                  <span className="text-mercury-500">Supervisor y Coordinador:</span>{' '}
+                  <strong>
+                    {formulario.coordinador.nombreCompleto} ({formulario.coordinador.run}) —{' '}
+                    {formulario.coordinador.cargo}
+                  </strong>
+                </div>
+                <div>
+                  <span className="text-mercury-500">Tipo de Presupuesto:</span>{' '}
+                  <strong>
+                    {ETIQUETAS_TIPO_PRESUPUESTO[formulario.licitacion.antecedentes.tipoPresupuesto]}
+                  </strong>
+                </div>
               </div>
             </div>
 
-            {formulario.licitacion.productos.length > 0 && (
-              <div className="space-y-2 rounded-xl border border-mercury-200 p-4">
-                <h4 className="text-sm font-semibold text-mercury-900">
-                  Productos solicitados ({formulario.licitacion.productos.length})
-                </h4>
-                <ul className="space-y-2 text-xs text-mercury-700">
-                  {formulario.licitacion.productos.map((prod, idx) => (
-                    <li key={idx} className="rounded-lg bg-mercury-50 p-2.5">
-                      <strong>{prod.descripcion}</strong> — {prod.cantidad} {prod.unidadMedida} ·
-                      Materialidad: {prod.materialidad} · Garantía: {prod.mesesGarantia} meses ·{' '}
-                      {prod.requiereInstalacion ? 'Con instalación' : 'Sin instalación'}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            <div className="space-y-3 rounded-xl border border-mercury-200 p-4">
+              <h4 className="text-sm font-bold uppercase tracking-wide text-primary-800">
+                III. Evaluación y Adjudicación de las Ofertas
+              </h4>
+              <p className="text-xs text-mercury-700">
+                Tipo de Evaluación:{' '}
+                <strong>{ETIQUETAS_TIPO_EVALUACION[formulario.licitacion.tipoEvaluacion]}</strong>
+              </p>
 
-            {formulario.licitacion.servicios.length > 0 && (
-              <div className="space-y-2 rounded-xl border border-mercury-200 p-4">
-                <h4 className="text-sm font-semibold text-mercury-900">
-                  Servicios solicitados ({formulario.licitacion.servicios.length})
-                </h4>
-                <ul className="space-y-2 text-xs text-mercury-700">
-                  {formulario.licitacion.servicios.map((serv, idx) => (
-                    <li key={idx} className="rounded-lg bg-mercury-50 p-2.5">
-                      <strong>{serv.nombreServicio}</strong> — Metodología:{' '}
-                      {serv.metodologiaExigida} · Hitos: {serv.hitosPrincipales} · Normativas:{' '}
-                      {serv.normativasAplicables}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="rounded-lg bg-mercury-50 p-3 text-xs text-mercury-700">
+                  <p className="font-semibold text-mercury-900">
+                    Comisión Evaluadora ({formulario.licitacion.comisionEvaluadora.length})
+                  </p>
+                  <ul className="mt-1.5 space-y-1">
+                    {formulario.licitacion.comisionEvaluadora.map((integrante, idx) => (
+                      <li key={idx}>
+                        <strong>{integrante.nombreCompleto}</strong> ({integrante.run}) ·{' '}
+                        {integrante.cargo} [{integrante.calidadContractual}] · {integrante.correo}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
 
-            {formulario.licitacion.bibliografia.length > 0 && (
-              <div className="space-y-2 rounded-xl border border-mercury-200 p-4">
-                <h4 className="text-sm font-semibold text-mercury-900">
-                  Bibliografía solicitada ({formulario.licitacion.bibliografia.length})
-                </h4>
-                <ul className="space-y-2 text-xs text-mercury-700">
-                  {formulario.licitacion.bibliografia.map((libro, idx) => (
-                    <li key={idx} className="rounded-lg bg-mercury-50 p-2.5">
-                      <strong>{libro.titulo}</strong> ({libro.autor}, {libro.editorial},{' '}
-                      {libro.edicionAnio}) · ISBN/ISSN: {libro.isbnIssn} ·{' '}
-                      {libro.cantidadEjemplares} ejemplares · Visado por Biblioteca
+                <div className="rounded-lg bg-mercury-50 p-3 text-xs text-mercury-700">
+                  <p className="font-semibold text-mercury-900">
+                    Ponderación de Criterios (Total 100%)
+                  </p>
+                  <ul className="mt-1.5 space-y-1">
+                    {formulario.licitacion.criteriosEvaluacion.aplicaRequisitosFormales && (
+                      <li>
+                        Requisitos Formales:{' '}
+                        <strong>
+                          {formulario.licitacion.criteriosEvaluacion.ponderacionRequisitosFormales}%
+                        </strong>
+                      </li>
+                    )}
+                    {formulario.licitacion.criteriosEvaluacion.aplicaPactoIntegridad && (
+                      <li>
+                        Pacto de Integridad:{' '}
+                        <strong>
+                          {formulario.licitacion.criteriosEvaluacion.ponderacionPactoIntegridad}%
+                        </strong>
+                      </li>
+                    )}
+                    <li>
+                      Económico — Precio:{' '}
+                      <strong>
+                        {formulario.licitacion.criteriosEvaluacion.ponderacionPrecio}%
+                      </strong>
                     </li>
-                  ))}
-                </ul>
+                    {formulario.licitacion.criteriosEvaluacion.aplicaPlazoEntrega && (
+                      <li>
+                        Técnico — Plazo de Entrega:{' '}
+                        <strong>
+                          {formulario.licitacion.criteriosEvaluacion.ponderacionPlazoEntrega}%
+                        </strong>
+                      </li>
+                    )}
+                    {formulario.licitacion.criteriosEvaluacion.aplicaExperiencia && (
+                      <li>
+                        Técnico — Experiencia:{' '}
+                        <strong>
+                          {formulario.licitacion.criteriosEvaluacion.ponderacionExperiencia}%
+                        </strong>
+                      </li>
+                    )}
+                    {formulario.licitacion.criteriosEvaluacion.aplicaPlazoGarantia && (
+                      <li>
+                        Técnico — Plazo de Garantía:{' '}
+                        <strong>
+                          {formulario.licitacion.criteriosEvaluacion.ponderacionPlazoGarantia}%
+                        </strong>
+                      </li>
+                    )}
+                    {formulario.licitacion.criteriosEvaluacion.otrosCriterios.map((crit, idx) => (
+                      <li key={idx}>
+                        {crit.nombre}: <strong>{crit.ponderacion}%</strong>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
-            )}
+            </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2 rounded-xl border border-mercury-200 p-4">
-                <h4 className="text-sm font-semibold text-mercury-900">
-                  Comisión Evaluadora ({formulario.licitacion.comisionEvaluadora.length})
-                </h4>
-                <ul className="space-y-1.5 text-xs text-mercury-700">
-                  {formulario.licitacion.comisionEvaluadora.map((integrante, idx) => (
-                    <li key={idx}>
-                      <strong>{integrante.nombreCompleto}</strong> ({integrante.run}) —{' '}
-                      {integrante.cargo}, {integrante.unidad}
-                    </li>
-                  ))}
-                </ul>
+            <div className="grid gap-4 rounded-xl border border-mercury-200 bg-mercury-50 p-4 text-xs text-mercury-700 sm:grid-cols-2">
+              <div className="border-t-2 border-mercury-400 pt-2">
+                <p className="font-bold text-mercury-900">
+                  FIRMA COORDINADOR O RESPONSABLE DE LA CONTRATACIÓN
+                </p>
+                <p>{formulario.coordinador.nombreCompleto}</p>
+                <p className="text-mercury-500">Cargo: {formulario.coordinador.cargo}</p>
               </div>
-
-              <div className="space-y-2 rounded-xl border border-mercury-200 p-4">
-                <h4 className="text-sm font-semibold text-mercury-900">
-                  Criterios de Evaluación (100%)
-                </h4>
-                <ul className="space-y-1 text-xs text-mercury-700">
-                  <li>
-                    Administrativo:{' '}
-                    <strong>
-                      {formulario.licitacion.criteriosEvaluacion.ponderacionAdministrativa}%
-                    </strong>
-                  </li>
-                  <li>
-                    Económico (Precio):{' '}
-                    <strong>
-                      {formulario.licitacion.criteriosEvaluacion.ponderacionEconomica}%
-                    </strong>
-                  </li>
-                  <li>
-                    Técnico — Plazo de entrega:{' '}
-                    <strong>
-                      {formulario.licitacion.criteriosEvaluacion.ponderacionPlazoEntrega}%
-                    </strong>
-                  </li>
-                  <li>
-                    Técnico — Experiencia:{' '}
-                    <strong>
-                      {formulario.licitacion.criteriosEvaluacion.ponderacionExperiencia}%
-                    </strong>
-                  </li>
-                  <li>
-                    Técnico — Garantía:{' '}
-                    <strong>
-                      {formulario.licitacion.criteriosEvaluacion.ponderacionGarantia}%
-                    </strong>{' '}
-                    (mín. {formulario.licitacion.criteriosEvaluacion.mesesGarantiaMinima} meses)
-                  </li>
-                </ul>
+              <div className="border-t-2 border-mercury-400 pt-2">
+                <p className="font-bold text-mercury-900">FIRMA JEFE CENTRO DE RESPONSABILIDAD</p>
+                <p>{formulario.licitacion.antecedentes.jefeCrNombre}</p>
+                <p className="text-mercury-500">
+                  Cargo: {formulario.licitacion.antecedentes.jefeCrCargo}
+                </p>
               </div>
             </div>
           </div>
@@ -266,38 +343,9 @@ export function DetalleFormularioModal({
                 <p className="font-semibold text-mercury-900">Justificación del proveedor único:</p>
                 <p className="mt-0.5">{formulario.tratoDirecto.justificacionProveedorUnico}</p>
               </div>
-              {formulario.tratoDirecto.informeCostos7b && (
-                <div className="rounded-lg border border-saffron-300 bg-saffron-50 p-3">
-                  <p className="font-semibold text-saffron-900">Informe de costos (Causal 7b):</p>
-                  <p className="mt-0.5 text-saffron-800">
-                    {formulario.tratoDirecto.informeCostos7b}
-                  </p>
-                </div>
-              )}
-              <div className="flex flex-wrap gap-4 border-t border-mercury-200 pt-3">
-                <span>
-                  Cotización: <strong>{formulario.tratoDirecto.nombreArchivoCotizacion}</strong>
-                </span>
-                <span>
-                  Declaración Jurada:{' '}
-                  <strong>{formulario.tratoDirecto.nombreArchivoDeclaracionJurada}</strong>
-                </span>
-              </div>
             </div>
           </div>
         )}
-
-        <div className="rounded-xl border border-mercury-200 bg-mercury-50 p-4 text-xs text-mercury-700">
-          <p className="font-semibold text-mercury-900">Disposiciones Contractuales:</p>
-          <p className="mt-1">
-            Multa diaria: <strong>{formulario.disposiciones.porcentajeMultaDiaria}%</strong> sobre
-            valor neto atrasado · Tope:{' '}
-            <strong>{formulario.disposiciones.topeDiasMulta} días</strong> (máx.{' '}
-            {formulario.disposiciones.topePorcentajeContrato}% del contrato) · Pago a{' '}
-            <strong>{formulario.disposiciones.plazoPagoDias} días</strong> contra recepción conforme
-            visada por Jefe de CR · Incluye término anticipado Art. 130 Ley 19.886.
-          </p>
-        </div>
       </Modal.Body>
 
       <Modal.Footer>

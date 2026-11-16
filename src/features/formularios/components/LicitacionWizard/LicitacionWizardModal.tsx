@@ -5,8 +5,7 @@ import { Form } from '@/components/ui/Form'
 import { Modal, useConfirm, type ModalComponentProps } from '@/components/ui/Modal'
 import { Stepper, useStepper } from '@/components/ui/Stepper'
 import { useCrearFormularioAdquisicion } from '@/features/formularios/api/formulariosAdquisicion'
-import { PasoDisposicionesContractuales } from '@/features/formularios/components/CamposComunes/PasoDisposicionesContractuales'
-import { PasoIdentificacionYCoordinador } from '@/features/formularios/components/CamposComunes/PasoIdentificacionYCoordinador'
+import { PasoAntecedentesLicitacion } from '@/features/formularios/components/LicitacionWizard/PasoAntecedentesLicitacion'
 import { PasoEvaluacionLicitacion } from '@/features/formularios/components/LicitacionWizard/PasoEvaluacionLicitacion'
 import { PasoRequerimientoLicitacion } from '@/features/formularios/components/LicitacionWizard/PasoRequerimientoLicitacion'
 import { VALORES_INICIALES_DISPOSICIONES } from '@/features/formularios/schemas/disposicionesComunes.schema'
@@ -15,7 +14,6 @@ import {
   type LicitacionPublicaFormValues,
 } from '@/features/formularios/schemas/formulariosAdquisicion.schema'
 import { transformarLicitacionAPayload } from '@/features/formularios/utils/catalogosFormulario'
-import { GARANTIA_MINIMA_LICITACION_MESES } from '@/features/formularios/utils/reglasLicitacion'
 import { zodResolver } from '@/lib/zodResolver'
 
 const CAMPOS_POR_PASO: Record<number, FieldPath<LicitacionPublicaFormValues>[]> = {
@@ -30,10 +28,26 @@ const CAMPOS_POR_PASO: Record<number, FieldPath<LicitacionPublicaFormValues>[]> 
     'coordinador.cargo',
     'coordinador.crCodigo',
     'coordinador.crNombre',
+    'antecedentes',
   ],
-  1: ['formalizacion', 'categoriaRequerimiento', 'productos', 'servicios', 'bibliografia'],
-  2: ['comisionEvaluadora', 'criteriosEvaluacion'],
-  3: ['disposiciones'],
+  1: [
+    'categoriaRequerimiento',
+    'productos',
+    'especificacionesTecnicasServicio',
+    'planillaValidacionBiblioteca',
+    'bibliografia',
+    'formalizacion',
+    'modalidadDuracionContrato',
+    'duracionContratoMeses',
+    'direccionDespachoCodigo',
+    'direccionDespachoOtra',
+    'disposiciones',
+    'otrosIncumplimientos',
+    'modalidadFormaPago',
+    'tipoEntregaParcializada',
+    'detalleEntregaParcializada',
+  ],
+  2: ['tipoEvaluacion', 'comisionEvaluadora', 'criteriosEvaluacion'],
 }
 
 function obtenerValoresInicialesLicitacion(): LicitacionPublicaFormValues {
@@ -50,44 +64,88 @@ function obtenerValoresInicialesLicitacion(): LicitacionPublicaFormValues {
       crCodigo: null,
       crNombre: '',
     },
-    formalizacion: 'solo_oc',
     categoriaRequerimiento: 'productos',
     productos: [
       {
-        descripcion: '',
         cantidad: 1,
-        unidadMedida: 'Unidad',
-        materialidad: '',
-        permiteEquivalentes: true,
+        especificacionesTecnicas: '',
+        imagenReferencia: [],
+        requiereGarantia: true,
         mesesGarantia: 12,
-        requiereInstalacion: false,
       },
     ],
-    servicios: [],
+    especificacionesTecnicasServicio: '',
+    planillaValidacionBiblioteca: [],
     bibliografia: [],
+    formalizacion: 'solo_oc',
+    modalidadDuracionContrato: 'plazo_ofertado',
+    duracionContratoMeses: null,
+    direccionDespachoCodigo: 'osorno_fuchslocher',
+    direccionDespachoOtra: '',
+    otrosIncumplimientos: [],
+    modalidadFormaPago: 'recepcion_conforme_total',
+    tipoEntregaParcializada: 'mes_vencido',
+    detalleEntregaParcializada: '',
+    antecedentes: {
+      campusSede: 'osorno',
+      fechaFormulario: new Date(),
+      formalizaSoloConFormularioLeasingObra: false,
+      jefeCrNombre: '',
+      jefeCrCargo: '',
+      coordinadorEsMismoJefeCr: true,
+      tipoPresupuesto: 'disponible',
+      hacerVisiblePresupuestoEstimado: true,
+      requiereGarantiaSeriedad: false,
+      montoGarantiaSeriedadClp: null,
+      visitaTerreno: 'no_requiere',
+      visitaDiasCorridosPublicacion: null,
+      visitaHora: '',
+      visitaGuiaNombreCargo: '',
+      visitaFormato: 'presencial',
+      visitaDetalleLugarOEnlace: '',
+      otrasConsideraciones: '',
+    },
+    tipoEvaluacion: 'completa',
     comisionEvaluadora: [
       {
         nombreCompleto: '',
         run: '',
         cargo: '',
-        unidad: '',
+        calidadContractual: 'Planta',
+        correo: '',
       },
     ],
     criteriosEvaluacion: {
-      ponderacionAdministrativa: 10,
-      ponderacionEconomica: 40,
+      aplicaRequisitosFormales: true,
+      ponderacionRequisitosFormales: 5,
+      aplicaPactoIntegridad: true,
+      ponderacionPactoIntegridad: 2,
+      ponderacionPrecio: 43,
+      mecanismoPrecio: 'formula_proporcional',
+      aplicaPlazoEntrega: true,
       ponderacionPlazoEntrega: 20,
+      tipoDiasPlazoEntrega: 'habiles',
+      plazoMaximoEntregaDias: 30,
+      mecanismoPlazoEntrega: 'formula_menor_plazo',
+      aplicaExperiencia: true,
       ponderacionExperiencia: 15,
-      ponderacionGarantia: 15,
-      mesesGarantiaMinima: GARANTIA_MINIMA_LICITACION_MESES,
-      exigePactoIntegridad: true,
+      especificacionRubroExperiencia: '',
+      modoMedicionExperiencia: 'cantidad_servicios',
+      rangoMaximoExperiencia: 'Más de 5 servicios similares',
+      rangoMedioExperiencia: 'Entre 3 y 5 servicios similares',
+      rangoMinimoExperiencia: 'Entre 1 y 2 servicios similares',
+      documentosRespaldoExperiencia: 'Certificados de recepción conforme u órdenes de compra',
+      aplicaPlazoGarantia: true,
+      ponderacionPlazoGarantia: 15,
+      mecanismoPlazoGarantia: 'rangos_meses',
+      otrosCriterios: [],
     },
     disposiciones: { ...VALORES_INICIALES_DISPOSICIONES },
   }
 }
 
 export function LicitacionWizardModal({ open, resolve, onExited }: ModalComponentProps<boolean>) {
-  const stepper = useStepper({ totalSteps: 4 })
+  const stepper = useStepper({ totalSteps: 3 })
   const confirmar = useConfirm()
   const mutacionCrear = useCrearFormularioAdquisicion()
 
@@ -143,20 +201,20 @@ export function LicitacionWizardModal({ open, resolve, onExited }: ModalComponen
       closeOnEscape={!mutacionCrear.isPending}
       showCloseButton={!mutacionCrear.isPending}
     >
-      <Modal.Header>Nuevo Formulario para Licitación Pública</Modal.Header>
+      <Modal.Header>
+        Formulario Oficial para Licitación Pública — “Producto y/o Servicios”
+      </Modal.Header>
       <Form form={form} onSubmit={guardarFormulario} className="flex min-h-0 flex-1 flex-col">
         <Modal.Body className="space-y-6">
           <Stepper active={stepper.active} onStepClick={stepper.goTo} size="sm">
-            <Stepper.Step label="Identificación" description="E-delfos y CR" />
-            <Stepper.Step label="Requerimiento" description="Ítems y UTM" />
-            <Stepper.Step label="Evaluación" description="Comisión y 100%" />
-            <Stepper.Step label="Disposiciones" description="Multas y pagos" />
+            <Stepper.Step label="II. Antecedentes" description="Solicitud, CR y Presupuesto" />
+            <Stepper.Step label="I. Descripción" description="Ítems, Despacho y Pago" />
+            <Stepper.Step label="III. Evaluación" description="Comisión y Criterios 100%" />
           </Stepper>
 
-          {stepper.active === 0 && <PasoIdentificacionYCoordinador />}
+          {stepper.active === 0 && <PasoAntecedentesLicitacion />}
           {stepper.active === 1 && <PasoRequerimientoLicitacion />}
           {stepper.active === 2 && <PasoEvaluacionLicitacion />}
-          {stepper.active === 3 && <PasoDisposicionesContractuales />}
         </Modal.Body>
 
         <Modal.Footer>
