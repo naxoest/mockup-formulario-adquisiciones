@@ -13,6 +13,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteRouteImport } from './routes/_app/route'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as AppPerfilRouteImport } from './routes/_app/perfil'
+import { Route as AppFormulariosRouteImport } from './routes/_app/formularios'
 import { Route as AppTransaccionesIndexRouteImport } from './routes/_app/transacciones/index'
 import { Route as AppRequerimientosIndexRouteImport } from './routes/_app/requerimientos/index'
 import { Route as AppAnalisis_por_carrerasIndexRouteImport } from './routes/_app/analisis_por_carreras/index'
@@ -41,6 +42,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
 const AppPerfilRoute = AppPerfilRouteImport.update({
   id: '/perfil',
   path: '/perfil',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppFormulariosRoute = AppFormulariosRouteImport.update({
+  id: '/formularios',
+  path: '/formularios',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const AppTransaccionesIndexRoute = AppTransaccionesIndexRouteImport.update({
@@ -105,6 +111,7 @@ const AppConfiguracionAdmin_usuariosRunRoute =
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/login': typeof LoginRoute
+  '/formularios': typeof AppFormulariosRoute
   '/perfil': typeof AppPerfilRoute
   '/analisis/adquisiciones': typeof AppAnalisisAdquisicionesRoute
   '/analisis_por_carreras/$unidadId': typeof AppAnalisis_por_carrerasUnidadIdRoute
@@ -119,6 +126,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
+  '/formularios': typeof AppFormulariosRoute
   '/perfil': typeof AppPerfilRoute
   '/': typeof AppIndexRoute
   '/analisis/adquisiciones': typeof AppAnalisisAdquisicionesRoute
@@ -136,6 +144,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteRouteWithChildren
   '/login': typeof LoginRoute
+  '/_app/formularios': typeof AppFormulariosRoute
   '/_app/perfil': typeof AppPerfilRoute
   '/_app/': typeof AppIndexRoute
   '/_app/analisis/adquisiciones': typeof AppAnalisisAdquisicionesRoute
@@ -154,6 +163,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/formularios'
     | '/perfil'
     | '/analisis/adquisiciones'
     | '/analisis_por_carreras/$unidadId'
@@ -168,6 +178,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
+    | '/formularios'
     | '/perfil'
     | '/'
     | '/analisis/adquisiciones'
@@ -184,6 +195,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_app'
     | '/login'
+    | '/_app/formularios'
     | '/_app/perfil'
     | '/_app/'
     | '/_app/analisis/adquisiciones'
@@ -231,6 +243,13 @@ declare module '@tanstack/react-router' {
       path: '/perfil'
       fullPath: '/perfil'
       preLoaderRoute: typeof AppPerfilRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/formularios': {
+      id: '/_app/formularios'
+      path: '/formularios'
+      fullPath: '/formularios'
+      preLoaderRoute: typeof AppFormulariosRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/_app/transacciones/': {
@@ -307,6 +326,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppRouteRouteChildren {
+  AppFormulariosRoute: typeof AppFormulariosRoute
   AppPerfilRoute: typeof AppPerfilRoute
   AppIndexRoute: typeof AppIndexRoute
   AppAnalisisAdquisicionesRoute: typeof AppAnalisisAdquisicionesRoute
@@ -322,6 +342,7 @@ interface AppRouteRouteChildren {
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
+  AppFormulariosRoute: AppFormulariosRoute,
   AppPerfilRoute: AppPerfilRoute,
   AppIndexRoute: AppIndexRoute,
   AppAnalisisAdquisicionesRoute: AppAnalisisAdquisicionesRoute,
