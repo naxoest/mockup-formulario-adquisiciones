@@ -14,6 +14,7 @@ import { solicitudesHandlers } from '@/mocks/handlers/solicitudes.handlers'
 import { transaccionesHandlers } from '@/mocks/handlers/transacciones.handlers'
 import { unidadesSolicitantesHandlers } from '@/mocks/handlers/unidadesSolicitantes.handlers'
 import { usuariosHandlers } from '@/mocks/handlers/usuarios.handlers'
+import { formulariosAdquisicionHandlers } from '@/mocks/handlers/formulariosAdquisicion.handlers'
 
 export const handlers = [
   ...analistasHandlers,
@@ -32,4 +33,5 @@ export const handlers = [
   ...transaccionesHandlers,
   ...unidadesSolicitantesHandlers,
   ...usuariosHandlers,
+  ...formulariosAdquisicionHandlers,
 ]

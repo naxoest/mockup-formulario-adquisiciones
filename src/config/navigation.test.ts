@@ -22,6 +22,7 @@ describe('filterNavigationItems', () => {
       'Transacciones > Monitoreo de criticidad',
       'Requerimientos > Requerimientos registrados',
       'Requerimientos > Historial de importaciones',
+      'Requerimientos > Formularios de compra',
       'Análisis > Adquisiciones',
       'Análisis > Por carrera',
       'Configuración > Administración de usuarios',
@@ -35,6 +36,7 @@ describe('filterNavigationItems', () => {
       'Transacciones > Gestión de Transacciones',
       'Requerimientos > Requerimientos registrados',
       'Requerimientos > Historial de importaciones',
+      'Requerimientos > Formularios de compra',
       'Análisis > Adquisiciones',
       'Análisis > Por carrera',
     ])

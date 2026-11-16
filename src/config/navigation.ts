@@ -62,6 +62,11 @@ export const navigationItems: NavigationItem[] = [
         path: '/requerimientos/importaciones',
         permission: 'requerimientos:ver',
       },
+      {
+        label: 'Formularios de compra',
+        path: '/formularios',
+        permission: 'requerimientos:ver',
+      },
     ],
   },
   {

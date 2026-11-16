@@ -1,0 +1,1 @@
+export { TratoDirectoWizardModal } from './TratoDirectoWizardModal'
