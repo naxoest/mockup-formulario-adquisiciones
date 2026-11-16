@@ -45,12 +45,24 @@ export type ModoMedicionExperiencia = 'cantidad_servicios' | 'anios_experiencia'
 
 export type MecanismoPlazoGarantia = 'formula_mayor_garantia' | 'rangos_meses'
 
+export type SituacionConvenioMarco =
+  | 'no_disponible'
+  | 'condiciones_regionales_o_monto_minimo'
+  | 'compra_agil_sin_resultados'
+
 export type CausalTratoDirecto =
+  | 'costo_desproporcionado_7b'
   | 'proveedor_unico'
   | 'emergencia_urgencia'
-  | 'costo_desproporcionado_7b'
   | 'servicios_confianza'
-  | 'convenio_marco_no_disponible'
+  | 'seguridad_o_equipamiento_critico'
+
+export type DocumentoAcreditacionAdicional =
+  | 'certificado_proveedor_unico'
+  | 'certificado_servicio_tecnico'
+  | 'convenio_cooperacion'
+  | 'informe_tecnico'
+  | 'otro'
 
 export interface DatosCoordinadorContrato {
   nombreCompleto: string
@@ -173,17 +185,57 @@ export interface DetalleLicitacionPublica {
   criteriosEvaluacion: CriteriosEvaluacionLicitacion
 }
 
+export interface ItemRequeridoTratoDirecto {
+  cantidad: number
+  descripcionDetallada: string
+}
+
+export interface LineaCotizacionTratoDirecto {
+  cantidad: number
+  detalle: string
+  precioUnitarioNeto: number
+  precioTotalNeto: number
+}
+
+export interface CondicionesCompraTratoDirecto {
+  plazoEntregaDiasHabiles: number
+  esServicio: boolean
+  fechaInicioServicio: string
+  fechaTerminoServicio: string
+  requiereGarantia: boolean
+  mesesGarantia: number | null
+  aplicaDireccionDespacho: boolean
+  direccionDespachoCodigo: DireccionDespachoCodigo
+  direccionDespachoOtra: string
+}
+
 export interface DetalleTratoDirecto {
-  proveedorNombre: string
-  proveedorRut: string
+  campusSede: CampusSedeUlagos
+  fechaFormulario: string
+  itemsRequeridos: ItemRequeridoTratoDirecto[]
+  situacionConvenioMarco: SituacionConvenioMarco
   causal: CausalTratoDirecto
   objetivoImportancia: string
-  justificacionProveedorUnico: string
-  informeCostos7b: string
-  certificaNoConvenioMarco: boolean
+  motivosEleccionProveedor: string
+  justificacionCausalEscogida: string
+  proveedorNombre: string
+  proveedorRut: string
+  lineasCotizacion: LineaCotizacionTratoDirecto[]
+  afectoIva: boolean
+  montoNetoClp: number
+  montoIvaClp: number
+  montoTotalClp: number
+  condicionesCompra: CondicionesCompraTratoDirecto
+  otrosIncumplimientos: OtroIncumplimientoLicitacion[]
+  compromisoEstandarSimpleOc: boolean
   compromisoNoFragmentacion: boolean
+  jefeCrNombre: string
+  jefeCrCargo: string
+  coordinadorEsMismoJefeCr: boolean
   nombreArchivoCotizacion: string
   nombreArchivoDeclaracionJurada: string
+  documentosAdicionales: DocumentoAcreditacionAdicional[]
+  otroDocumentoAdicionalDetalle: string
 }
 
 export interface FormularioAdquisicionBase {
