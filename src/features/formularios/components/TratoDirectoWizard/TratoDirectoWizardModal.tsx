@@ -5,9 +5,8 @@ import { Form } from '@/components/ui/Form'
 import { Modal, useConfirm, type ModalComponentProps } from '@/components/ui/Modal'
 import { Stepper, useStepper } from '@/components/ui/Stepper'
 import { useCrearFormularioAdquisicion } from '@/features/formularios/api/formulariosAdquisicion'
-import { PasoDisposicionesContractuales } from '@/features/formularios/components/CamposComunes/PasoDisposicionesContractuales'
-import { PasoIdentificacionYCoordinador } from '@/features/formularios/components/CamposComunes/PasoIdentificacionYCoordinador'
 import { PasoJustificacionTratoDirecto } from '@/features/formularios/components/TratoDirectoWizard/PasoJustificacionTratoDirecto'
+import { PasoRequerimientoYFundamentoTd } from '@/features/formularios/components/TratoDirectoWizard/PasoRequerimientoYFundamentoTd'
 import { PasoRespaldosTratoDirecto } from '@/features/formularios/components/TratoDirectoWizard/PasoRespaldosTratoDirecto'
 import { VALORES_INICIALES_DISPOSICIONES } from '@/features/formularios/schemas/disposicionesComunes.schema'
 import {
@@ -19,40 +18,80 @@ import { zodResolver } from '@/lib/zodResolver'
 
 const CAMPOS_POR_PASO: Record<number, FieldPath<TratoDirectoFormValues>[]> = {
   0: [
-    'titulo',
+    'campusSede',
+    'fechaFormulario',
     'tipoSolicitud',
     'codigoEdelfos',
-    'montoEstimadoClp',
-    'coordinador.nombreCompleto',
-    'coordinador.run',
-    'coordinador.correo',
-    'coordinador.cargo',
-    'coordinador.crCodigo',
-    'coordinador.crNombre',
-  ],
-  1: [
-    'proveedorNombre',
-    'proveedorRut',
+    'titulo',
+    'itemsRequeridos',
+    'situacionConvenioMarco',
     'causal',
     'objetivoImportancia',
-    'justificacionProveedorUnico',
-    'informeCostos7b',
+    'motivosEleccionProveedor',
+    'justificacionCausalEscogida',
   ],
+  1: ['proveedorNombre', 'proveedorRut', 'lineasCotizacion', 'afectoIva', 'condicionesCompra'],
   2: [
-    'certificaNoConvenioMarco',
+    'coordinador.crCodigo',
+    'coordinador.crNombre',
+    'jefeCrNombre',
+    'jefeCrCargo',
+    'coordinadorEsMismoJefeCr',
+    'coordinador.nombreCompleto',
+    'coordinador.cargo',
+    'coordinador.run',
+    'coordinador.correo',
+    'otrosIncumplimientos',
+    'disposiciones',
+    'compromisoEstandarSimpleOc',
     'compromisoNoFragmentacion',
     'archivoCotizacion',
     'archivoDeclaracionJurada',
+    'documentosAdicionales',
+    'otroDocumentoAdicionalDetalle',
   ],
-  3: ['disposiciones'],
 }
 
 function obtenerValoresInicialesTratoDirecto(): TratoDirectoFormValues {
   return {
+    campusSede: 'osorno',
+    fechaFormulario: new Date(),
     titulo: '',
     codigoEdelfos: '',
     tipoSolicitud: 'SASERVI',
-    montoEstimadoClp: null,
+    montoEstimadoClp: 1,
+    itemsRequeridos: [
+      {
+        cantidad: 1,
+        descripcionDetallada: '',
+      },
+    ],
+    situacionConvenioMarco: 'no_disponible',
+    causal: 'costo_desproporcionado_7b',
+    objetivoImportancia: '',
+    motivosEleccionProveedor: '',
+    justificacionCausalEscogida: '',
+    proveedorNombre: '',
+    proveedorRut: '',
+    lineasCotizacion: [
+      {
+        cantidad: 1,
+        detalle: '',
+        precioUnitarioNeto: null,
+      },
+    ],
+    afectoIva: true,
+    condicionesCompra: {
+      plazoEntregaDiasHabiles: 5,
+      esServicio: true,
+      fechaInicioServicio: '',
+      fechaTerminoServicio: '',
+      requiereGarantia: false,
+      mesesGarantia: null,
+      aplicaDireccionDespacho: false,
+      direccionDespachoCodigo: 'osorno_fuchslocher',
+      direccionDespachoOtra: '',
+    },
     coordinador: {
       nombreCompleto: '',
       run: '',
@@ -61,22 +100,25 @@ function obtenerValoresInicialesTratoDirecto(): TratoDirectoFormValues {
       crCodigo: null,
       crNombre: '',
     },
-    proveedorNombre: '',
-    proveedorRut: '',
-    causal: 'proveedor_unico',
-    objetivoImportancia: '',
-    justificacionProveedorUnico: '',
-    informeCostos7b: '',
-    certificaNoConvenioMarco: false,
-    compromisoNoFragmentacion: false,
+    jefeCrNombre: '',
+    jefeCrCargo: '',
+    coordinadorEsMismoJefeCr: true,
+    otrosIncumplimientos: [],
+    compromisoEstandarSimpleOc: true,
+    compromisoNoFragmentacion: true,
     archivoCotizacion: [],
     archivoDeclaracionJurada: [],
-    disposiciones: { ...VALORES_INICIALES_DISPOSICIONES },
+    documentosAdicionales: [],
+    otroDocumentoAdicionalDetalle: '',
+    disposiciones: {
+      ...VALORES_INICIALES_DISPOSICIONES,
+      topePorcentajeContrato: '10',
+    },
   }
 }
 
 export function TratoDirectoWizardModal({ open, resolve, onExited }: ModalComponentProps<boolean>) {
-  const stepper = useStepper({ totalSteps: 4 })
+  const stepper = useStepper({ totalSteps: 3 })
   const confirmar = useConfirm()
   const mutacionCrear = useCrearFormularioAdquisicion()
 
@@ -132,20 +174,18 @@ export function TratoDirectoWizardModal({ open, resolve, onExited }: ModalCompon
       closeOnEscape={!mutacionCrear.isPending}
       showCloseButton={!mutacionCrear.isPending}
     >
-      <Modal.Header>Nuevo Formulario de Adquisición por Trato Directo</Modal.Header>
+      <Modal.Header>Formulario de Adquisición por Trato o Contratación Directa (v.4)</Modal.Header>
       <Form form={form} onSubmit={guardarFormulario} className="flex min-h-0 flex-1 flex-col">
         <Modal.Body className="space-y-6">
           <Stepper active={stepper.active} onStepClick={stepper.goTo} size="sm">
-            <Stepper.Step label="Identificación" description="E-delfos y CR" />
-            <Stepper.Step label="Justificación" description="Art. 71 y Proveedor" />
-            <Stepper.Step label="Respaldos" description="Cotización y DJ" />
-            <Stepper.Step label="Disposiciones" description="Multas y pagos" />
+            <Stepper.Step label="1–4. Fundamento" description="Ítems, Convenio y Art. 71" />
+            <Stepper.Step label="5. Cotización" description="Proveedor, Neto/IVA y Plazos" />
+            <Stepper.Step label="6–11. Respaldos" description="Coordinador, CR y Adjuntos" />
           </Stepper>
 
-          {stepper.active === 0 && <PasoIdentificacionYCoordinador />}
+          {stepper.active === 0 && <PasoRequerimientoYFundamentoTd />}
           {stepper.active === 1 && <PasoJustificacionTratoDirecto />}
           {stepper.active === 2 && <PasoRespaldosTratoDirecto />}
-          {stepper.active === 3 && <PasoDisposicionesContractuales />}
         </Modal.Body>
 
         <Modal.Footer>

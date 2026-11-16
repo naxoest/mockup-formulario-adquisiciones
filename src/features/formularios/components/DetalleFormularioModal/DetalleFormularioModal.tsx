@@ -11,7 +11,9 @@ import {
   ETIQUETAS_CAMPUS_SEDE,
   ETIQUETAS_CATEGORIA_LICITACION,
   ETIQUETAS_CAUSAL_TRATO_DIRECTO,
+  ETIQUETAS_CONVENIO_MARCO_TD,
   ETIQUETAS_DIRECCION_DESPACHO,
+  ETIQUETAS_DOCUMENTOS_ADICIONALES_TD,
   ETIQUETAS_ESTADO_FORMULARIO,
   ETIQUETAS_FORMALIZACION,
   ETIQUETAS_FORMA_PAGO,
@@ -58,6 +60,16 @@ export function DetalleFormularioModal({
     )
   }
 
+  const campusLabel =
+    formulario.modalidad === 'licitacion_publica'
+      ? ETIQUETAS_CAMPUS_SEDE[formulario.licitacion.antecedentes.campusSede]
+      : ETIQUETAS_CAMPUS_SEDE[formulario.tratoDirecto.campusSede]
+
+  const fechaLabel =
+    formulario.modalidad === 'licitacion_publica'
+      ? formulario.licitacion.antecedentes.fechaFormulario
+      : formulario.tratoDirecto.fechaFormulario
+
   return (
     <Modal open={open} onClose={() => resolve()} onExited={onExited} size="xl">
       <Modal.Header>
@@ -75,21 +87,18 @@ export function DetalleFormularioModal({
                 {ETIQUETAS_ESTADO_FORMULARIO[formulario.estado]}
               </Badge>
               <Badge variant="neutral">{ETIQUETAS_TIPO_SOLICITUD[formulario.tipoSolicitud]}</Badge>
-              {formulario.modalidad === 'licitacion_publica' && (
-                <Badge variant="info">
-                  {ETIQUETAS_CAMPUS_SEDE[formulario.licitacion.antecedentes.campusSede]} ·{' '}
-                  {formulario.licitacion.antecedentes.fechaFormulario}
-                </Badge>
-              )}
+              <Badge variant="info">
+                {campusLabel} · {fechaLabel}
+              </Badge>
             </div>
             <h3 className="text-base font-semibold text-mercury-900">{formulario.titulo}</h3>
             <p className="text-xs text-mercury-600">
-              Solicitud E-delfos: <strong className="font-mono">{formulario.codigoEdelfos}</strong>
+              Folio de Solicitud: <strong className="font-mono">{formulario.codigoEdelfos}</strong>
             </p>
           </div>
 
           <div className="text-right">
-            <p className="text-xs text-mercury-500">Presupuesto</p>
+            <p className="text-xs text-mercury-500">Monto Total</p>
             <p className="text-lg font-bold tabular-nums text-mercury-900">
               {formatCLP(formulario.montoEstimadoClp)}
             </p>
@@ -142,9 +151,6 @@ export function DetalleFormularioModal({
                       {prod.requiereGarantia
                         ? `Garantía: ${prod.mesesGarantia} meses`
                         : 'No requiere garantía'}
-                      {prod.nombreImagenReferencia
-                        ? ` · Imagen ref.: ${prod.nombreImagenReferencia}`
-                        : ''}
                     </li>
                   ))}
                 </ul>
@@ -159,12 +165,6 @@ export function DetalleFormularioModal({
 
               {formulario.licitacion.bibliografia.length > 0 && (
                 <div className="space-y-2 pt-2 text-xs text-mercury-700">
-                  {formulario.licitacion.nombrePlanillaValidacionBiblioteca && (
-                    <p>
-                      Planilla validación Biblioteca:{' '}
-                      <strong>{formulario.licitacion.nombrePlanillaValidacionBiblioteca}</strong>
-                    </p>
-                  )}
                   <ul className="space-y-2">
                     {formulario.licitacion.bibliografia.map((libro, idx) => (
                       <li key={idx} className="rounded-lg bg-mercury-50 p-2.5">
@@ -230,7 +230,7 @@ export function DetalleFormularioModal({
                     {formulario.licitacion.comisionEvaluadora.map((integrante, idx) => (
                       <li key={idx}>
                         <strong>{integrante.nombreCompleto}</strong> ({integrante.run}) ·{' '}
-                        {integrante.cargo} [{integrante.calidadContractual}] · {integrante.correo}
+                        {integrante.cargo} [{integrante.calidadContractual}]
                       </li>
                     ))}
                   </ul>
@@ -287,11 +287,6 @@ export function DetalleFormularioModal({
                         </strong>
                       </li>
                     )}
-                    {formulario.licitacion.criteriosEvaluacion.otrosCriterios.map((crit, idx) => (
-                      <li key={idx}>
-                        {crit.nombre}: <strong>{crit.ponderacion}%</strong>
-                      </li>
-                    ))}
                   </ul>
                 </div>
               </div>
@@ -315,33 +310,179 @@ export function DetalleFormularioModal({
             </div>
           </div>
         ) : (
-          <div className="space-y-4">
-            <div className="grid gap-4 rounded-xl border border-mercury-200 p-4 sm:grid-cols-2">
-              <div>
-                <p className="text-xs text-mercury-500">Proveedor seleccionado</p>
-                <p className="text-sm font-semibold text-mercury-900">
-                  {formulario.tratoDirecto.proveedorNombre}
-                </p>
-                <p className="text-xs text-mercury-600">
-                  RUT: {formulario.tratoDirecto.proveedorRut}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-mercury-500">Causal legal (Art. 71 Ley 19.886)</p>
-                <p className="text-sm font-semibold text-mercury-900">
-                  {ETIQUETAS_CAUSAL_TRATO_DIRECTO[formulario.tratoDirecto.causal]}
-                </p>
-              </div>
+          <div className="space-y-5">
+            <div className="space-y-2 rounded-xl border border-mercury-200 p-4 text-xs text-mercury-700">
+              <h4 className="text-sm font-bold text-primary-800">
+                1. La unidad que suscribe requiere:
+              </h4>
+              <ul className="space-y-1.5">
+                {formulario.tratoDirecto.itemsRequeridos.map((item, idx) => (
+                  <li key={idx} className="rounded-lg bg-mercury-50 p-2.5">
+                    <strong>CANT. {item.cantidad}:</strong> {item.descripcionDetallada}
+                  </li>
+                ))}
+              </ul>
             </div>
 
             <div className="space-y-3 rounded-xl border border-mercury-200 p-4 text-xs text-mercury-700">
               <div>
-                <p className="font-semibold text-mercury-900">Objetivo e importancia:</p>
-                <p className="mt-0.5">{formulario.tratoDirecto.objetivoImportancia}</p>
+                <p className="font-bold text-primary-800">2. Catálogo de Convenio Marco vigente:</p>
+                <p className="mt-0.5">
+                  {ETIQUETAS_CONVENIO_MARCO_TD[formulario.tratoDirecto.situacionConvenioMarco]}
+                </p>
               </div>
+
               <div>
-                <p className="font-semibold text-mercury-900">Justificación del proveedor único:</p>
-                <p className="mt-0.5">{formulario.tratoDirecto.justificacionProveedorUnico}</p>
+                <p className="font-bold text-primary-800">
+                  3. Causal Artículo 71 Reglamento Ley de Compras N° 19.886:
+                </p>
+                <p className="mt-0.5 font-semibold text-mercury-900">
+                  {ETIQUETAS_CAUSAL_TRATO_DIRECTO[formulario.tratoDirecto.causal]}
+                </p>
+              </div>
+
+              <div className="space-y-2 border-t border-mercury-200 pt-3">
+                <p className="font-bold text-primary-800">4. Fundamentación de la solicitud:</p>
+                <div>
+                  <strong>a) Objetivo e importancia de la compra:</strong>
+                  <p className="mt-0.5">{formulario.tratoDirecto.objetivoImportancia}</p>
+                </div>
+                <div>
+                  <strong>b) Motivos que argumentan elección del proveedor:</strong>
+                  <p className="mt-0.5">{formulario.tratoDirecto.motivosEleccionProveedor}</p>
+                </div>
+                <div>
+                  <strong>c) Justificación de la causal de contratación directa escogida:</strong>
+                  <p className="mt-0.5">{formulario.tratoDirecto.justificacionCausalEscogida}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3 rounded-xl border border-mercury-200 p-4 text-xs text-mercury-700">
+              <h4 className="text-sm font-bold text-primary-800">
+                5. Cuadro de Cotización y Condiciones de la Compra
+              </h4>
+
+              <div className="grid gap-2 rounded-lg bg-mercury-50 p-3 sm:grid-cols-2">
+                <div>
+                  <span className="text-mercury-500">(*) RAZÓN SOCIAL PROVEEDOR:</span>{' '}
+                  <strong>{formulario.tratoDirecto.proveedorNombre}</strong>
+                </div>
+                <div>
+                  <span className="text-mercury-500">RUT PROVEEDOR:</span>{' '}
+                  <strong>{formulario.tratoDirecto.proveedorRut}</strong>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                {formulario.tratoDirecto.lineasCotizacion.map((linea, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center justify-between rounded-lg border border-mercury-200 px-3 py-2"
+                  >
+                    <span>
+                      <strong>CANT. {linea.cantidad}</strong> · {linea.detalle} (Unitario neto:{' '}
+                      {formatCLP(linea.precioUnitarioNeto)})
+                    </span>
+                    <strong className="tabular-nums">{formatCLP(linea.precioTotalNeto)}</strong>
+                  </div>
+                ))}
+              </div>
+
+              <div className="space-y-1 border-t border-mercury-200 pt-2 text-right tabular-nums">
+                <p>
+                  NETO: <strong>{formatCLP(formulario.tratoDirecto.montoNetoClp)}</strong>
+                </p>
+                <p>
+                  IVA: <strong>{formatCLP(formulario.tratoDirecto.montoIvaClp)}</strong>
+                </p>
+                <p className="text-sm font-bold text-primary-800">
+                  TOTAL: {formatCLP(formulario.tratoDirecto.montoTotalClp)}
+                </p>
+              </div>
+
+              <div className="grid gap-2 border-t border-mercury-200 pt-3 sm:grid-cols-2">
+                <div>
+                  Plazo de entrega:{' '}
+                  <strong>
+                    {formulario.tratoDirecto.condicionesCompra.plazoEntregaDiasHabiles} días hábiles
+                  </strong>
+                </div>
+                {formulario.tratoDirecto.condicionesCompra.esServicio && (
+                  <div>
+                    Vigencia del servicio:{' '}
+                    <strong>
+                      {formulario.tratoDirecto.condicionesCompra.fechaInicioServicio} —{' '}
+                      {formulario.tratoDirecto.condicionesCompra.fechaTerminoServicio}
+                    </strong>
+                  </div>
+                )}
+                <div>
+                  Garantía:{' '}
+                  <strong>
+                    {formulario.tratoDirecto.condicionesCompra.requiereGarantia
+                      ? `${formulario.tratoDirecto.condicionesCompra.mesesGarantia} meses`
+                      : '☒ No requiere garantía'}
+                  </strong>
+                </div>
+                <div>
+                  Dirección de despacho:{' '}
+                  <strong>
+                    {formulario.tratoDirecto.condicionesCompra.aplicaDireccionDespacho
+                      ? ETIQUETAS_DIRECCION_DESPACHO[
+                          formulario.tratoDirecto.condicionesCompra.direccionDespachoCodigo
+                        ]
+                      : '☒ No aplica'}
+                  </strong>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid gap-4 rounded-xl border border-mercury-200 p-4 text-xs text-mercury-700 sm:grid-cols-2">
+              <div>
+                <p className="font-bold text-primary-800">
+                  6. Coordinador de la Contratación y 10. Imputación CR
+                </p>
+                <p className="mt-1">
+                  Coordinador: <strong>{formulario.coordinador.nombreCompleto}</strong> (RUT:{' '}
+                  {formulario.coordinador.run}) — {formulario.coordinador.cargo}
+                </p>
+                <p className="mt-1">
+                  Imputada al CR: <strong>{formulario.coordinador.crCodigo}</strong> —{' '}
+                  {formulario.coordinador.crNombre} (Jefe CR:{' '}
+                  <strong>{formulario.tratoDirecto.jefeCrNombre}</strong>)
+                </p>
+              </div>
+
+              <div>
+                <p className="font-bold text-primary-800">11. Documentos Adjuntos Acreditados</p>
+                <ul className="mt-1 space-y-1">
+                  <li>
+                    ☒ Cotización: <strong>{formulario.tratoDirecto.nombreArchivoCotizacion}</strong>
+                  </li>
+                  <li>
+                    ☒ Declaración Jurada:{' '}
+                    <strong>{formulario.tratoDirecto.nombreArchivoDeclaracionJurada}</strong>
+                  </li>
+                  {formulario.tratoDirecto.documentosAdicionales.map((doc) => (
+                    <li key={doc}>☒ {ETIQUETAS_DOCUMENTOS_ADICIONALES_TD[doc]}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            <div className="grid gap-4 rounded-xl border border-mercury-200 bg-mercury-50 p-4 text-xs text-mercury-700 sm:grid-cols-2">
+              <div className="border-t-2 border-mercury-400 pt-2">
+                <p className="font-bold text-mercury-900">
+                  FIRMA COORDINADOR O RESPONSABLE DE LA CONTRATACIÓN
+                </p>
+                <p>{formulario.coordinador.nombreCompleto}</p>
+                <p className="text-mercury-500">Cargo: {formulario.coordinador.cargo}</p>
+              </div>
+              <div className="border-t-2 border-mercury-400 pt-2">
+                <p className="font-bold text-mercury-900">FIRMA JEFE CENTRO DE RESPONSABILIDAD</p>
+                <p>{formulario.tratoDirecto.jefeCrNombre}</p>
+                <p className="text-mercury-500">Cargo: {formulario.tratoDirecto.jefeCrCargo}</p>
               </div>
             </div>
           </div>
