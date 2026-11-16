@@ -1,0 +1,1 @@
+export { PasoAdquisiciones } from './PasoAdquisiciones'

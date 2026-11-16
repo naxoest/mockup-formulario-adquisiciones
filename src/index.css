@@ -1,0 +1,506 @@
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('/fonts/open-sans/open-sans-v44-latin-300.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/open-sans/open-sans-v44-latin-regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/open-sans/open-sans-v44-latin-500.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/open-sans/open-sans-v44-latin-600.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/open-sans/open-sans-v44-latin-700.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('/fonts/open-sans/open-sans-v44-latin-800.woff2') format('woff2');
+}
+
+@import 'tailwindcss';
+@import 'react-day-picker/style.css';
+
+/* Configuración para evitar scroll con modal abierto */
+html {
+  background-color: var(--color-mercury-50);
+  scrollbar-color: var(--color-mercury-500) transparent;
+  scrollbar-width: thin;
+}
+
+html:has(dialog[open]) {
+  overflow: hidden;
+  padding-right: var(--scrollbar-compensation, 0px);
+}
+
+/* COnfiguración de estilo general tailwind */
+
+@theme {
+  --font-open-sans: 'Open Sans', sans-serif;
+
+  --color-mercury-50: #fafafa;
+  --color-mercury-100: #f4f4f4; /* base */
+  --color-mercury-200: #e5e5e5;
+  --color-mercury-300: #d4d4d4;
+  --color-mercury-400: #a3a3a3;
+  --color-mercury-500: #737373;
+  --color-mercury-600: #525252;
+  --color-mercury-700: #404040;
+  --color-mercury-800: #262626;
+  --color-mercury-900: #171717;
+  --color-mercury-950: #0a0a0a;
+
+  --color-espresso-50: #fbf9f9;
+  --color-espresso-100: #f6f3f2;
+  --color-espresso-200: #ebe6e4;
+  --color-espresso-300: #d6cecb;
+  --color-espresso-400: #a89c98;
+  --color-espresso-500: #7d6f6a;
+  --color-espresso-600: #5e514d;
+  --color-espresso-700: #4a3e3b;
+  --color-espresso-800: #362c2a;
+  --color-espresso-900: #25201f; /* base */
+  --color-espresso-950: #141110;
+
+  --color-scarlet-50: #fff4f3;
+  --color-scarlet-100: #fed8d3;
+  --color-scarlet-200: #ffbab3;
+  --color-scarlet-300: #ff9a92;
+  --color-scarlet-400: #ff756e;
+  --color-scarlet-500: #fe4446;
+  --color-scarlet-600: #ea212f; /* base */
+  --color-scarlet-700: #ba011c;
+  --color-scarlet-800: #880112;
+  --color-scarlet-900: #590108;
+  --color-scarlet-950: #2e0002;
+
+  --color-crimson-50: #fef4f3;
+  --color-crimson-100: #fbd6d2;
+  --color-crimson-200: #fab5af;
+  --color-crimson-300: #fa9189;
+  --color-crimson-400: #f46d66;
+  --color-crimson-500: #e54a48;
+  --color-crimson-600: #ca3436; /* base */
+  --color-crimson-700: #a31b22;
+  --color-crimson-800: #7b0411;
+  --color-crimson-900: #510006;
+  --color-crimson-950: #2a0002;
+
+  --color-abyss-50: #f0f9f9;
+  --color-abyss-100: #d2e5e6;
+  --color-abyss-200: #afd3d5;
+  --color-abyss-300: #88c2c5;
+  --color-abyss-400: #60b1b5;
+  --color-abyss-500: #3a9ea3;
+  --color-abyss-600: #25898e;
+  --color-abyss-700: #197479;
+  --color-abyss-800: #145f63; /* base */
+  --color-abyss-900: #003437;
+  --color-abyss-950: #000e0f;
+
+  --color-saffron-50: #fbf6ed;
+  --color-saffron-100: #efe3d0;
+  --color-saffron-200: #e6cfab;
+  --color-saffron-300: #debb81;
+  --color-saffron-400: #d5a757;
+  --color-saffron-500: #c8942e; /* base */
+  --color-saffron-600: #a67604;
+  --color-saffron-700: #825b00;
+  --color-saffron-800: #5f4201;
+  --color-saffron-900: #3e2a01;
+  --color-saffron-950: #201300;
+
+  --color-plum-50: #faf4ff;
+  --color-plum-100: #e8daf1;
+  --color-plum-200: #d9bee9;
+  --color-plum-300: #cba1e3;
+  --color-plum-400: #bb84da;
+  --color-plum-500: #aa6acc;
+  --color-plum-600: #9356b3;
+  --color-plum-700: #7c4698; /* base */
+  --color-plum-800: #582c6f;
+  --color-plum-900: #361546;
+  --color-plum-950: #16041f;
+
+  --color-ember-50: #fef4f2;
+  --color-ember-100: #fdd9cf;
+  --color-ember-200: #fdbba9;
+  --color-ember-300: #fe9b80;
+  --color-ember-400: #fc7856;
+  --color-ember-500: #f05931; /* base */
+  --color-ember-600: #cb3b0e;
+  --color-ember-700: #a02902;
+  --color-ember-800: #741c01;
+  --color-ember-900: #4c0f01;
+  --color-ember-950: #270400;
+
+  --color-jade-50: #f0faf0;
+  --color-jade-100: #d4ebd5;
+  --color-jade-200: #b1deb4;
+  --color-jade-300: #8ad291;
+  --color-jade-400: #62c46f;
+  --color-jade-500: #3bb452; /* base */
+  --color-jade-600: #0f9335;
+  --color-jade-700: #047025;
+  --color-jade-800: #005017;
+  --color-jade-900: #01310b;
+  --color-jade-950: #001503;
+
+  --color-primary-50: #eef4ff;
+  --color-primary-100: #dbe8ff;
+  --color-primary-200: #bdd3ff;
+  --color-primary-300: #94b5ff;
+  --color-primary-400: #6992f5;
+  --color-primary-500: #3f6fe3;
+  --color-primary-600: #1f56c5;
+  --color-primary-700: #003ca6; /* base */
+  --color-primary-800: #00338d;
+  --color-primary-900: #00276b;
+  --color-primary-950: #00133a;
+
+  --color-sidebar: var(--color-primary-800);
+  --color-sidebar-foreground: var(--color-white);
+  --color-sidebar-accent: var(--color-primary-100);
+  --color-sidebar-accent-foreground: var(--color-primary-900);
+}
+
+/* Configuración de Modales */
+.modal-dialog {
+  opacity: 0;
+  translate: 0 -1rem;
+  transition:
+    opacity 200ms ease-out,
+    translate 200ms ease-out;
+}
+
+.modal-dialog[data-open] {
+  opacity: 1;
+  translate: 0 0;
+}
+
+@starting-style {
+  .modal-dialog[data-open] {
+    opacity: 0;
+    translate: 0 -1rem;
+  }
+}
+
+.modal-dialog::backdrop {
+  opacity: 0;
+  transition: opacity 200ms ease-out;
+}
+
+.modal-dialog[data-open]::backdrop {
+  opacity: 1;
+}
+
+@starting-style {
+  .modal-dialog[data-open]::backdrop {
+    opacity: 0;
+  }
+}
+
+/* Configuración de estilo de react-day-picker */
+.rdp-root {
+  --rdp-accent-color: var(--color-primary-600);
+  --rdp-accent-background-color: var(--color-primary-50);
+
+  --rdp-animation_duration: 0s;
+
+  --rdp-day-width: 40px;
+  --rdp-day-height: 40px;
+
+  --rdp-day_button-width: 36px;
+  --rdp-day_button-height: 36px;
+
+  --rdp-day_button-border-radius: 8px;
+
+  --rdp-selected-border: none;
+
+  --rdp-disabled-opacity: 0.3;
+
+  --rdp-outside-opacity: 0.4;
+
+  --rdp-today-color: var(--color-primary-700);
+
+  --rdp-nav_button-width: 32px;
+  --rdp-nav_button-height: 32px;
+
+  --rdp-nav_button-disabled-opacity: 0.2;
+
+  --rdp-weekday-opacity: 1;
+
+  --rdp-dropdown-gap: 0.75rem;
+
+  color: var(--color-espresso-900);
+
+  font-family: var(--font-open-sans);
+}
+
+.rdp {
+  background-color: white;
+
+  border: 1px solid var(--color-mercury-200);
+
+  border-radius: 14px;
+
+  padding: 1rem;
+}
+
+.rdp-month_caption {
+  margin-bottom: 0.75rem;
+}
+
+.rdp-caption_label {
+  color: var(--color-espresso-900);
+
+  font-size: 0.95rem;
+
+  font-weight: 600;
+}
+
+.rdp-dropdowns {
+  display: flex;
+
+  align-items: center;
+
+  gap: 0.75rem;
+}
+
+.rdp-dropdown_root {
+  position: relative;
+}
+
+.rdp-dropdown_root select,
+.rdp-months_dropdown,
+.rdp-years_dropdown {
+  appearance: none;
+
+  -webkit-appearance: none;
+
+  -moz-appearance: none;
+
+  min-height: 2.25rem;
+
+  padding-top: 0.45rem;
+  padding-bottom: 0.45rem;
+
+  padding-left: 0.75rem;
+  padding-right: 2rem;
+
+  border: 1px solid var(--color-mercury-200);
+
+  border-radius: 8px;
+
+  background-color: white;
+
+  color: var(--color-espresso-900);
+
+  font-family: inherit;
+
+  font-size: 0.875rem;
+
+  font-weight: 500;
+
+  line-height: 1.2;
+
+  outline: none;
+
+  cursor: pointer;
+
+  transition:
+    border-color 120ms ease,
+    background-color 120ms ease;
+}
+
+.rdp-dropdown_root select:hover,
+.rdp-months_dropdown:hover,
+.rdp-years_dropdown:hover {
+  border-color: var(--color-mercury-300);
+
+  background-color: var(--color-mercury-50);
+}
+
+.rdp-dropdown_root select:focus-visible,
+.rdp-months_dropdown:focus-visible,
+.rdp-years_dropdown:focus-visible {
+  border-color: var(--color-primary-400);
+
+  outline: 2px solid var(--color-primary-200);
+
+  outline-offset: 2px;
+}
+
+.rdp-dropdown_root option,
+.rdp-months_dropdown option,
+.rdp-years_dropdown option {
+  padding: 0.5rem;
+
+  background: white;
+
+  color: var(--color-espresso-900);
+}
+
+.rdp-weekday {
+  color: var(--color-mercury-500);
+
+  font-size: 0.75rem;
+
+  font-weight: 600;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.04em;
+}
+
+.rdp-day {
+  color: var(--color-espresso-900);
+}
+
+.rdp-day_button {
+  width: 36px;
+
+  height: 36px;
+
+  border: none !important;
+
+  outline: none !important;
+
+  border-radius: 8px;
+
+  background: transparent;
+
+  color: var(--color-espresso-900);
+
+  font-size: 0.875rem;
+
+  font-weight: 500;
+
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+.rdp-day_button:hover {
+  background: var(--color-mercury-100);
+}
+
+.rdp-selected .rdp-day_button {
+  background: var(--color-primary-600);
+
+  color: white;
+}
+
+.rdp-selected .rdp-day_button:hover {
+  background: var(--color-primary-700);
+}
+
+.rdp-today:not(.rdp-selected) .rdp-day_button {
+  border: 1px solid var(--color-primary-200) !important;
+
+  color: var(--color-primary-700);
+}
+
+.rdp-outside .rdp-day_button {
+  color: var(--color-mercury-400);
+}
+
+.rdp-disabled .rdp-day_button {
+  opacity: 0.3;
+}
+
+.rdp-nav {
+  gap: 0.25rem;
+}
+
+.rdp-button_previous,
+.rdp-button_next {
+  border: none !important;
+
+  outline: none !important;
+
+  background: transparent !important;
+
+  color: var(--color-mercury-700) !important;
+
+  border-radius: 8px;
+
+  width: 32px;
+
+  height: 32px;
+
+  transition: background-color 120ms ease;
+}
+
+.rdp-button_previous:hover,
+.rdp-button_next:hover {
+  background: var(--color-mercury-100) !important;
+}
+
+.rdp-chevron {
+  fill: var(--color-mercury-700) !important;
+
+  stroke: var(--color-mercury-700) !important;
+
+  width: 16px;
+
+  height: 16px;
+}
+
+.rdp-button_previous svg,
+.rdp-button_next svg {
+  fill: var(--color-mercury-700) !important;
+
+  stroke: var(--color-mercury-700) !important;
+}
+
+.rdp-day_button:focus,
+.rdp-day_button:focus-visible,
+.rdp-button_previous:focus,
+.rdp-button_next:focus {
+  outline: none !important;
+
+  box-shadow: none !important;
+}
+
+.rdp-range_middle {
+  background: var(--color-primary-50);
+}
+
+.rdp-range_middle .rdp-day_button {
+  color: var(--color-primary-900);
+}
+
+.rdp-month_grid {
+  border-collapse: separate;
+
+  border-spacing: 0.25rem;
+}

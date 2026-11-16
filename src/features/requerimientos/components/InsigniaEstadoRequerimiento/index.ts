@@ -1,0 +1,1 @@
+export { InsigniaEstadoRequerimiento } from './InsigniaEstadoRequerimiento'

@@ -1,0 +1,1 @@
+export { InsigniaVigencia } from './InsigniaVigencia'

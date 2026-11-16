@@ -1,0 +1,1 @@
+export { DetalleRequerimientoModal } from './DetalleRequerimientoModal'

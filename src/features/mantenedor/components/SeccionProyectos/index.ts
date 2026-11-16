@@ -1,0 +1,1 @@
+export { SeccionProyectos } from './SeccionProyectos'

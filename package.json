@@ -1,0 +1,93 @@
+{
+  "name": "proyecto-frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "packageManager": "pnpm@10.33.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "preview": "vite preview",
+    "typecheck": "tsc -b --noEmit",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "*.{json,md,css,html}": [
+      "prettier --write"
+    ]
+  },
+  "dependencies": {
+    "@floating-ui/react": "^0.27.19",
+    "@hookform/resolvers": "^5.2.2",
+    "@react-pdf/renderer": "^4.6.1",
+    "@tanstack/react-query": "^5.99.2",
+    "@tanstack/react-query-devtools": "^5.99.2",
+    "@tanstack/react-router": "^1.168.23",
+    "@tanstack/react-router-devtools": "^1.166.13",
+    "@tanstack/react-table": "^8.21.3",
+    "clsx": "^2.1.1",
+    "cmdk": "^1.1.1",
+    "date-fns": "^4.1.0",
+    "lucide-react": "^1.8.0",
+    "react": "^19.2.5",
+    "react-day-picker": "^10.0.0",
+    "react-dom": "^19.2.5",
+    "react-dropzone": "^20.1.2",
+    "react-easy-crop": "6.2.3",
+    "react-hook-form": "^7.75.0",
+    "react-is": "^19.2.6",
+    "recharts": "2.15.4",
+    "sonner": "^2.0.7",
+    "tailwind-merge": "^3.5.0",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^20.5.0",
+    "@commitlint/config-conventional": "^20.5.0",
+    "@eslint/js": "^9.39.4",
+    "@tailwindcss/vite": "^4.2.2",
+    "@tanstack/eslint-plugin-query": "^5.99.2",
+    "@tanstack/eslint-plugin-router": "^1.161.6",
+    "@tanstack/router-plugin": "^1.167.22",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/node": "^24.12.2",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "@vitest/eslint-plugin": "^1.6.16",
+    "eslint": "^9.39.4",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.5.0",
+    "husky": "^9.1.7",
+    "jsdom": "^29.0.2",
+    "lint-staged": "^16.4.0",
+    "msw": "^2.14.6",
+    "prettier": "^3.8.3",
+    "tailwindcss": "^4.2.2",
+    "typescript": "~6.0.2",
+    "typescript-eslint": "^8.58.2",
+    "vite": "^8.0.9",
+    "vite-imagetools": "12.0.1",
+    "vite-plugin-node-polyfills": "^0.28.0",
+    "vitest": "^4.1.5"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
+  }
+}
