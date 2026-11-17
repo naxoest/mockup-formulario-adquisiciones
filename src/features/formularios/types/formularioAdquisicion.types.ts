@@ -51,7 +51,18 @@ export type SituacionConvenioMarco =
   | 'compra_agil_sin_resultados'
 
 export type CausalTratoDirecto =
+  | '1_proveedor_unico'
+  | '2_sin_interesados'
+  | '3_emergencia_urgencia'
+  | '4_confidencial_seguridad_nacional'
+  | '5_confianza_seguridad'
+  | '6_menor_30_utm_impacto_social'
+  | '7a_compatibilidad_modelos_sistemas'
   | 'costo_desproporcionado_7b'
+  | '7b_costo_desproporcionado'
+  | '7c_alta_especializacion'
+  | '7d_seguridad_autoridades'
+  | '7e_riesgo_conocimiento_publico'
   | 'proveedor_unico'
   | 'emergencia_urgencia'
   | 'servicios_confianza'
@@ -253,12 +264,14 @@ export interface FormularioAdquisicionBase {
   actualizadoEn: string
 }
 
-export type FormularioAdquisicion =
-  | (FormularioAdquisicionBase & {
-      modalidad: 'licitacion_publica'
-      licitacion: DetalleLicitacionPublica
-    })
-  | (FormularioAdquisicionBase & {
-      modalidad: 'trato_directo'
-      tratoDirecto: DetalleTratoDirecto
-    })
+export type FormularioLicitacionPublica = FormularioAdquisicionBase & {
+  modalidad: 'licitacion_publica'
+  licitacion: DetalleLicitacionPublica
+}
+
+export type FormularioTratoDirecto = FormularioAdquisicionBase & {
+  modalidad: 'trato_directo'
+  tratoDirecto: DetalleTratoDirecto
+}
+
+export type FormularioAdquisicion = FormularioLicitacionPublica | FormularioTratoDirecto

@@ -278,25 +278,58 @@ export const OPCIONES_CONVENIO_MARCO_TRATO_DIRECTO: OpcionRadioConDescripcion[] 
 
 export const OPCIONES_CAUSAL_TRATO_DIRECTO: SelectOption[] = [
   {
+    value: '1_proveedor_unico',
+    label: '1) Si sólo existe un Proveedor del bien y/o servicio.',
+  },
+  {
+    value: '2_sin_interesados',
+    label:
+      '2) Si no hubiere interesados para el suministro de bienes muebles y/o la prestación de servicios, o las ofertas hubiesen sido declaradas inadmisibles, siempre que se hubieran concursado previamente (previa licitación privada)',
+  },
+  {
+    value: '3_emergencia_urgencia',
+    label:
+      '3) En casos de emergencia, urgencia o imprevisto, en que se requiera satisfacer una necesidad pública de manera impostergable, sin perjuicio de las disposiciones especiales para casos de sismos y catástrofes contenidas en la legislación pertinente.',
+  },
+  {
+    value: '4_confidencial_seguridad_nacional',
+    label:
+      '4) Si se trata de servicios de naturaleza confidencial o cuya difusión pudiere afectar la seguridad o el interés nacional, determinados por ley.',
+  },
+  {
+    value: '5_confianza_seguridad',
+    label:
+      '5) Cuando, por la magnitud e importancia que implica la contratación, es indispensable recurrir a un Proveedor determinado debido a la confianza y seguridad comprobada, siempre y cuando no existan otros proveedores que otorguen esa confianza y seguridad',
+  },
+  {
+    value: '6_menor_30_utm_impacto_social',
+    label:
+      '6) Cuando se trate de adquisiciones inferiores a 30 Unidades Tributarias Mensuales y que privilegien materias de alto impacto social.',
+  },
+  {
+    value: '7a_compatibilidad_modelos_sistemas',
+    label:
+      '7a) Cuando se requiera la contratación de servicios o equipamiento accesorios, que deban ser compatibles con modelos, sistemas, equipamiento o infraestructura tecnológica previamente adquirida por la entidad, con contrato previamente adjudicado',
+  },
+  {
     value: 'costo_desproporcionado_7b',
     label:
-      '7b) Cuando el costo de recurrir a un procedimiento competitivo resulte desproporcionado financiera o humanamente (máx 100 UTM)',
+      '7b) Cuando el costo de recurrir a un procedimiento competitivo para la adquisición de servicios resulte desproporcionado desde el punto de vista financiero o de utilización de recursos humanos, presentando informe detallado en cada caso (máx 100 UTM)',
   },
   {
-    value: 'proveedor_unico',
-    label: 'Letra d) Si sólo existe un proveedor del bien o servicio (titular exclusivo)',
+    value: '7c_alta_especializacion',
+    label:
+      '7c) Cuando se requiera contratar un servicio que necesite un alto grado de especialización en la materia del contrato, en temas de consultorías, asesorías o servicios especializados destinados a proyectos específicos de docencia, investigación o extensión',
   },
   {
-    value: 'emergencia_urgencia',
-    label: 'Letra c) En casos de emergencia, urgencia o imprevisto calificado',
+    value: '7d_seguridad_autoridades',
+    label:
+      '7d) Cuando pueda afectarse la seguridad e integridad personal de las autoridades siendo necesario contratar directamente con un proveedor probado que asegure discreción y confianza.',
   },
   {
-    value: 'servicios_confianza',
-    label: 'Letra f) Servicios de naturaleza confidencial o facultades especiales',
-  },
-  {
-    value: 'seguridad_o_equipamiento_critico',
-    label: 'Reposición o complementación de equipamiento o servicios críticos compatibles',
+    value: '7e_riesgo_conocimiento_publico',
+    label:
+      '7e) Cuando el conocimiento público que generaría el proceso licitatorio previo a la contratación pudiera poner en serio riesgo el objeto y la eficacia de la contratación de que se trata.',
   },
 ]
 
@@ -406,12 +439,35 @@ export const ETIQUETAS_CONVENIO_MARCO_TD: Record<SituacionConvenioMarco, string>
 }
 
 export const ETIQUETAS_CAUSAL_TRATO_DIRECTO: Record<CausalTratoDirecto, string> = {
+  '1_proveedor_unico': '1) Si sólo existe un Proveedor del bien y/o servicio.',
+  '2_sin_interesados':
+    '2) Si no hubiere interesados para el suministro de bienes muebles y/o la prestación de servicios, o las ofertas hubiesen sido declaradas inadmisibles (previa licitación privada)',
+  '3_emergencia_urgencia':
+    '3) En casos de emergencia, urgencia o imprevisto, en que se requiera satisfacer una necesidad pública de manera impostergable',
+  '4_confidencial_seguridad_nacional':
+    '4) Servicios de naturaleza confidencial o cuya difusión pudiere afectar la seguridad o el interés nacional',
+  '5_confianza_seguridad':
+    '5) Por magnitud e importancia, indispensable recurrir a un Proveedor determinado debido a confianza y seguridad comprobada',
+  '6_menor_30_utm_impacto_social':
+    '6) Adquisiciones inferiores a 30 UTM y que privilegien materias de alto impacto social',
+  '7a_compatibilidad_modelos_sistemas':
+    '7a) Servicios o equipamiento accesorios compatibles con infraestructura tecnológica previamente adquirida',
   costo_desproporcionado_7b:
-    '7b) Costo desproporcionado de realizar licitación competitiva (máx 100 UTM)',
-  proveedor_unico: 'Letra d) Proveedor único del bien o servicio',
-  emergencia_urgencia: 'Letra c) Emergencia, urgencia o imprevisto calificado',
-  servicios_confianza: 'Letra f) Servicios especializados o confidenciales',
-  seguridad_o_equipamiento_critico: 'Reposición o compatibilidad de equipamiento crítico',
+    '7b) Costo desproporcionado desde el punto de vista financiero o de utilización de recursos humanos (máx 100 UTM)',
+  '7b_costo_desproporcionado':
+    '7b) Costo desproporcionado desde el punto de vista financiero o de utilización de recursos humanos (máx 100 UTM)',
+  '7c_alta_especializacion':
+    '7c) Alto grado de especialización en consultorías, asesorías o servicios especializados (docencia, investigación o extensión)',
+  '7d_seguridad_autoridades':
+    '7d) Seguridad e integridad personal de las autoridades (proveedor probado que asegure discreción y confianza)',
+  '7e_riesgo_conocimiento_publico':
+    '7e) Cuando el conocimiento público del proceso licitatorio pudiera poner en serio riesgo el objeto y la eficacia',
+  proveedor_unico: '1) Si sólo existe un Proveedor del bien y/o servicio.',
+  emergencia_urgencia: '3) En casos de emergencia, urgencia o imprevisto impostergable',
+  servicios_confianza:
+    '4) Servicios de naturaleza confidencial o de confianza y seguridad comprobada',
+  seguridad_o_equipamiento_critico:
+    '7a) Contratación de servicios o equipamiento accesorios compatibles',
 }
 
 export const ETIQUETAS_DOCUMENTOS_ADICIONALES_TD: Record<DocumentoAcreditacionAdicional, string> = {
