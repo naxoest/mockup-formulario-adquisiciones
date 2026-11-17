@@ -497,7 +497,18 @@ export const tratoDirectoFormSchema = cabeceraComunFormSchema
     ),
     causal: z.enum(
       [
+        '1_proveedor_unico',
+        '2_sin_interesados',
+        '3_emergencia_urgencia',
+        '4_confidencial_seguridad_nacional',
+        '5_confianza_seguridad',
+        '6_menor_30_utm_impacto_social',
+        '7a_compatibilidad_modelos_sistemas',
         'costo_desproporcionado_7b',
+        '7b_costo_desproporcionado',
+        '7c_alta_especializacion',
+        '7d_seguridad_autoridades',
+        '7e_riesgo_conocimiento_publico',
         'proveedor_unico',
         'emergencia_urgencia',
         'servicios_confianza',
@@ -567,7 +578,11 @@ export const tratoDirectoFormSchema = cabeceraComunFormSchema
     )
     const montoUtm = calcularMontoUtm(totales.total)
 
-    if (valores.causal === 'costo_desproporcionado_7b' && montoUtm > TOPE_CAUSAL_7B_UTM) {
+    if (
+      (valores.causal === 'costo_desproporcionado_7b' ||
+        valores.causal === '7b_costo_desproporcionado') &&
+      montoUtm > TOPE_CAUSAL_7B_UTM
+    ) {
       ctx.addIssue({
         code: 'custom',
         path: ['causal'],

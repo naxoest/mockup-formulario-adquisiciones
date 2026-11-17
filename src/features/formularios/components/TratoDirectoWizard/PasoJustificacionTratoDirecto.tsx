@@ -147,12 +147,13 @@ export function PasoJustificacionTratoDirecto() {
             </div>
           </div>
 
-          {causal === 'costo_desproporcionado_7b' && montoUtm > TOPE_CAUSAL_7B_UTM && (
-            <p role="alert" className="mt-2 text-xs font-semibold text-scarlet-600">
-              Atención: La causal 7b permite un máximo de {TOPE_CAUSAL_7B_UTM} UTM y el total actual
-              equivale a {montoUtm.toLocaleString('es-CL')} UTM.
-            </p>
-          )}
+          {(causal === 'costo_desproporcionado_7b' || causal === '7b_costo_desproporcionado') &&
+            montoUtm > TOPE_CAUSAL_7B_UTM && (
+              <p role="alert" className="mt-2 text-xs font-semibold text-scarlet-600">
+                Atención: La causal 7b permite un máximo de {TOPE_CAUSAL_7B_UTM} UTM y el total
+                actual equivale a {montoUtm.toLocaleString('es-CL')} UTM.
+              </p>
+            )}
         </div>
       </div>
 
