@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { API_BASE_URL } from '@/config/env'
-import type { FormularioAdquisicion } from '@/features/formularios/types/formularioAdquisicion.types'
+import type {
+  FormularioAdquisicion,
+  FormularioTratoDirecto,
+} from '@/features/formularios/types/formularioAdquisicion.types'
 
 const URL_BASE = `${API_BASE_URL}/api/formularios-adquisicion`
 
@@ -97,11 +100,11 @@ describe('formulariosAdquisicion handlers', () => {
     })
 
     expect(respuesta.status).toBe(201)
-    const creado = (await respuesta.json()) as FormularioAdquisicion
+    const creado = (await respuesta.json()) as FormularioTratoDirecto
     expect(creado.id).toMatch(/^form-td-/)
     expect(creado.folio).toMatch(/^TD-2026-/)
     expect(creado.estado).toBe('en_revision')
-    expect(creado.tratoDirecto?.causal).toBe('7c_alta_especializacion')
+    expect(creado.tratoDirecto.causal).toBe('7c_alta_especializacion')
   })
 
   it('PATCH actualiza el estado de un formulario existente', async () => {

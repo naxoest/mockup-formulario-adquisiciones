@@ -264,12 +264,14 @@ export interface FormularioAdquisicionBase {
   actualizadoEn: string
 }
 
-export type FormularioAdquisicion =
-  | (FormularioAdquisicionBase & {
-      modalidad: 'licitacion_publica'
-      licitacion: DetalleLicitacionPublica
-    })
-  | (FormularioAdquisicionBase & {
-      modalidad: 'trato_directo'
-      tratoDirecto: DetalleTratoDirecto
-    })
+export type FormularioLicitacionPublica = FormularioAdquisicionBase & {
+  modalidad: 'licitacion_publica'
+  licitacion: DetalleLicitacionPublica
+}
+
+export type FormularioTratoDirecto = FormularioAdquisicionBase & {
+  modalidad: 'trato_directo'
+  tratoDirecto: DetalleTratoDirecto
+}
+
+export type FormularioAdquisicion = FormularioLicitacionPublica | FormularioTratoDirecto
